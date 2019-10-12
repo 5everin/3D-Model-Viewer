@@ -302,13 +302,15 @@ Public Class Form1
                                        Dim t1 As Vector3 = Vector3.Subtract(vec(2), vec(0))
                                        normals(f) = Vector3.Cross(t, t1)
                                        normals(f) = Vector3.Normalize(normals(f))
-                                       If CheckBox5.Checked = True Then 'back face cull
-                                           Dim vtemp As Vector3 = normals(f)
-                                           vtemp.Z = vtemp.Z - camera.Z
-                                           Dim cp As Double = Vector3.Dot(vtemp, normals(f))
-                                           If cp > 0 Then polys(f).Draw_poly = False
+                                       Dim vtemp As Vector3 = normals(f)
+                                       vtemp.Z = vtemp.Z - camera.Z
+                                       Dim cp As Double = Vector3.Dot(vtemp, normals(f))
+                                       If CheckBox5.Checked = True Then
+                                           If cp > 0 Then polys(f).Draw_poly = False  'back face cull
+                                       Else
+                                           If cp > 0 Then normals(f) *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
                                        End If
-                                       If polys(f).Draw_poly = True Then
+                                           If polys(f).Draw_poly = True Then
                                            If CheckBox6.Checked = True Then
                                                Dim cam As Int32 = CInt(camera.Z + 200) 'z clip distance (stops frame rate dropping to silly levels when geomatry starts get to close to the camera plane)
                                                For n As Int32 = 0 To 2 '   perspective transform(3D > 2D mapping) 
@@ -751,7 +753,7 @@ Public Class Form1
         For n As Int32 = 0 To 1
             Calc_centerpoint()
             Dim offset As Vector3
-            For f As Int32 = 1 To vertcount - 1
+            For f As Int32 = 1 To vertcount
                 offset = Vector3.Subtract(Verts(f), modelcenter)
                 Verts(f) = Vector3.Subtract(screencenter, offset)
             Next
@@ -763,10 +765,10 @@ Public Class Form1
         modelcenter.X = 0
         modelcenter.Y = 0
         modelcenter.Z = 0
-        For counts As Int32 = 1 To vertcount - 1
+        For counts As Int32 = 1 To vertcount
             modelcenter = Vector3.Add(modelcenter, Verts(counts))
         Next
-        modelcenter = Vector3.Divide(modelcenter, vertcount - 1)
+        modelcenter = Vector3.Divide(modelcenter, vertcount)
     End Sub
 
     Private Sub Write_obj() 'export file

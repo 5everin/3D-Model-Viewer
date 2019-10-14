@@ -111,7 +111,7 @@ Public Class Form1
         screencenter.Z = 0
         camera.X = screencenter.X
         camera.Y = screencenter.Y
-        camdefault = -3500
+        camdefault = -2200
         camera.Z = camdefault
         picbox.Top = 0
         If P_right = True Then picbox.Left = 0 Else picbox.Left = Panel1.Width
@@ -135,7 +135,7 @@ Public Class Form1
         Panel1.BringToFront()
         Label23.BringToFront()
         picbox.Focus()
-        Label12.Text = "Cam Z:" & (TrackBar8.Maximum + TrackBar8.Minimum + 1 - TrackBar8.Value) * -1
+        Label12.Text = "Cam Z:" & ((TrackBar8.Maximum + TrackBar8.Minimum + 1 - TrackBar8.Value) * -1) * 20
         Me.Refresh()
     End Sub
 
@@ -304,11 +304,13 @@ Public Class Form1
                                        normals(f) = Vector3.Normalize(normals(f))
                                        Dim vtemp As Vector3 = normals(f)
                                        vtemp.Z = vtemp.Z - camera.Z
-                                       Dim cp As Double = Vector3.Dot(vtemp, normals(f))
+                                       Dim cp As Single = Vector3.Dot(vtemp, normals(f))
+
+
                                        If CheckBox5.Checked = True Then
-                                           If cp > 0 Then polys(f).Draw_poly = False  'back face cull
+                                           If cp >= 0 Then polys(f).Draw_poly = False  'back face cull
                                        Else
-                                           If cp > 0 Then normals(f) *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
+                                           If cp >= 0 Then normals(f) *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
                                        End If
                                            If polys(f).Draw_poly = True Then
                                            If CheckBox6.Checked = True Then
@@ -400,10 +402,9 @@ Public Class Form1
                                                        colour = &H7F401090
                                                    End If
                                                End If
-                                               'force x/y elements of the vectors into int32 
+                                               'force Y axis values of the vectors into int32 
                                                For n As Int32 = 0 To 2
                                                    vec(n).Y = CInt(vec(n).Y)
-                                                   '  vec(n).X = CInt(vec(n).X)
                                                Next
                                                'workout the triangle type and draw. 
                                                If vec(1).Y = vec(2).Y Then
@@ -413,13 +414,13 @@ Public Class Form1
                                                Else
                                                    vec(3).Y = (vec(1).Y - vec(0).Y) / (vec(2).Y - vec(0).Y) 'generate new temp vertex to split the triangle into 2
                                                    vec(3) = vec(0) + (vec(2) - vec(0)) * vec(3).Y
-                                                   If vec(1).X < vec(3).X Then
-                                                       Flatbottom(vec(0), vec(1), vec(3), colour) 'generate a righthand triangle from the top 3 vectors
-                                                       Flattop(vec(1), vec(3), vec(2), colour) 'generate a righthand triangle from the bottom 3 vectors
-                                                   Else
-                                                       Flatbottom(vec(0), vec(3), vec(1), colour) 'generate a lefthand triangle from the top 3 vectors 
-                                                       Flattop(vec(3), vec(1), vec(2), colour) 'generate a lefthand triangle from the bottom 3 vectors
-                                                   End If
+                                                   'If vec(1).X < vec(3).X Then
+                                                   Flatbottom(vec(0), vec(1), vec(3), colour) 'generate a righthand triangle from the top 3 vectors
+                                                   Flattop(vec(1), vec(3), vec(2), colour) 'generate a righthand triangle from the bottom 3 vectors
+                                                   ' Else
+                                                   'Flatbottom(vec(0), vec(3), vec(1), colour) 'generate a lefthand triangle from the top 3 vectors 
+                                                   'Flattop(vec(3), vec(1), vec(2), colour) 'generate a lefthand triangle from the bottom 3 vectors
+                                                   'End If
                                                End If
                                            End If
                                        End If
@@ -470,7 +471,7 @@ Public Class Form1
                                 bl -= 16
                                 Zbuffer(loc) = CInt(zpos)
                             Else
-                                bl = 255 - (blendamount * 0.1)
+                                bl = 255 - (blendamount * 0.2)
                             End If
                             Dim rb As Int32 = colour And &HFF00FF
                             Dim g As Int32 = colour And &HFF00
@@ -903,7 +904,6 @@ Public Class Form1
         Label1.Text = "Vertexes imported " & counts.ToString("n0") & vbNewLine & "Polygons imported " & counts2.ToString("n0")
         polycount = counts2
         vertcount = counts
-        reader.Close()
         'Scale the model to a reasonable size based on screen height
         Firstscale()
     End Sub
@@ -1192,7 +1192,11 @@ Public Class Form1
     End Sub
 
     Private Sub CheckBox8_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox8.CheckedChanged
-        If CheckBox8.Checked = True Then CheckBox8.ForeColor = Color.DodgerBlue Else CheckBox8.ForeColor = Color.Black
+        If CheckBox8.Checked = True Then CheckBox8.ForeColor = Color.Lavender Else CheckBox8.ForeColor = Color.Black
+        Do Until CheckBox8.Checked = False
+            Makebmp()
+            Application.DoEvents()
+        Loop
     End Sub
 
     Private Sub CheckBox10_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox10.CheckedChanged
@@ -1240,9 +1244,8 @@ Public Class Form1
     End Sub
 
     Private Sub TrackBar8_Scroll(sender As Object, e As EventArgs) Handles TrackBar8.Scroll
-        camera.Z = (TrackBar8.Maximum + TrackBar8.Minimum + 1 - TrackBar8.Value) * -1
-        If camera.Z < -1200 Then camera.Z <<= 2
-        Clear_array()
+        camera.Z = ((TrackBar8.Maximum + TrackBar8.Minimum + 1 - TrackBar8.Value) * -1) * 20
+            Clear_array()
         Label12.Text = "Cam Z:" & camera.Z.ToString("n0")
         Makebmp()
     End Sub

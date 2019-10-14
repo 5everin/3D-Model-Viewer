@@ -691,19 +691,19 @@ Partial Class Form1
         'TrackBar8
         '
         Me.TrackBar8.AutoSize = False
-        Me.TrackBar8.LargeChange = 500
+        Me.TrackBar8.LargeChange = 20
         Me.TrackBar8.Location = New System.Drawing.Point(107, 167)
-        Me.TrackBar8.Maximum = 2000
-        Me.TrackBar8.Minimum = 199
+        Me.TrackBar8.Maximum = 200
+        Me.TrackBar8.Minimum = 10
         Me.TrackBar8.Name = "TrackBar8"
         Me.TrackBar8.Orientation = System.Windows.Forms.Orientation.Vertical
         Me.TrackBar8.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.TrackBar8.Size = New System.Drawing.Size(23, 158)
-        Me.TrackBar8.SmallChange = 250
         Me.TrackBar8.TabIndex = 15
+        Me.TrackBar8.TabStop = False
         Me.TrackBar8.TickFrequency = 10
         Me.TrackBar8.TickStyle = System.Windows.Forms.TickStyle.None
-        Me.TrackBar8.Value = 1000
+        Me.TrackBar8.Value = 100
         '
         'Label4
         '
@@ -1236,7 +1236,6 @@ Partial Class Form1
     Friend WithEvents Label19 As Label
     Friend WithEvents FolderBrowserDialog1 As FolderBrowserDialog
     Friend WithEvents Label20 As Label
-    Friend WithEvents TrackBar8 As TrackBar
     Friend WithEvents Label21 As Label
     Friend WithEvents Button30 As Button
     Friend WithEvents Label22 As Label
@@ -1287,4 +1286,5 @@ Partial Class Form1
     Friend WithEvents CheckBox12 As CheckBox
     Friend WithEvents ToolStripMenuItem5 As ToolStripMenuItem
     Public WithEvents TrackBar1 As TrackBar
+    Friend WithEvents TrackBar8 As TrackBar
 End Class

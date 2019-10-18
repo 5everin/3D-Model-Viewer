@@ -142,7 +142,7 @@ Public Class Form1
     Private Sub Load_Defaults()
         Dim tempstr As String
         Dim cont As Object
-        AddHandler picbox.MouseDown, AddressOf Form1_MouseDown 'add mouse click handler for each picbox
+        AddHandler picbox.MouseDown, AddressOf Form1_MouseDown 
         If IO.File.Exists(CurDir() & "\3dE_settings.cfg") = True Then
             Dim reader As New StreamReader(CurDir() & "\3dE_settings.cfg")
             Try
@@ -169,12 +169,8 @@ Public Class Form1
                 reader.Close()
                 If tempstr = "False" Then
                     P_right = False
-                    '   Panel1.Left = 0
-                    '   picbox.Left = Panel1.Width
                 Else
                     P_right = True
-                    '  picbox.Left = 0
-                    '  Panel1.Left = picbox.Width
                 End If
             Catch oops As Exception
                 reader.Close()
@@ -305,12 +301,10 @@ Public Class Form1
                                        Dim vtemp As Vector3 = normals(f)
                                        vtemp.Z = vtemp.Z - camera.Z
                                        Dim cp As Single = Vector3.Dot(vtemp, normals(f))
-
-
                                        If CheckBox5.Checked = True Then
                                            If cp >= 0 Then polys(f).Draw_poly = False  'back face cull
                                        Else
-                                           If cp >= 0 Then normals(f) *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
+                                           If cp > 0 Then normals(f) *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
                                        End If
                                            If polys(f).Draw_poly = True Then
                                            If CheckBox6.Checked = True Then
@@ -395,8 +389,8 @@ Public Class Form1
                                                    Lighting(normals(f), colour) 'lighting
                                                End If
                                                If DrawAline = False AndAlso Lit_lines = False Then  '  non-lit polys
-                                                   Dim test As Int32 = f >> 1
-                                                   If test << 1 = f Then
+                                                   Dim test As Int32 = f >> 1 << 1
+                                                   If test = f Then
                                                        colour = &H7F808080
                                                    Else
                                                        colour = &H7F401090
@@ -415,8 +409,8 @@ Public Class Form1
                                                    vec(3).Y = (vec(1).Y - vec(0).Y) / (vec(2).Y - vec(0).Y) 'generate new temp vertex to split the triangle into 2
                                                    vec(3) = vec(0) + (vec(2) - vec(0)) * vec(3).Y
                                                    'If vec(1).X < vec(3).X Then
-                                                   Flatbottom(vec(0), vec(1), vec(3), colour) 'generate a righthand triangle from the top 3 vectors
-                                                   Flattop(vec(1), vec(3), vec(2), colour) 'generate a righthand triangle from the bottom 3 vectors
+                                                   Flatbottom(vec(0), vec(1), vec(3), colour) 'generate a triangle from the top 3 vectors
+                                                   Flattop(vec(1), vec(3), vec(2), colour) 'generate a  triangle from the bottom 3 vectors
                                                    ' Else
                                                    'Flatbottom(vec(0), vec(3), vec(1), colour) 'generate a lefthand triangle from the top 3 vectors 
                                                    'Flattop(vec(3), vec(1), vec(2), colour) 'generate a lefthand triangle from the bottom 3 vectors
@@ -431,7 +425,7 @@ Public Class Form1
         'this traces the two lines down the sides of a flat bottomed triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
         'it then calls drawx which generates the points between the vertical line end points passed to it.
         Dim l1, l2 As Vector3
-        For scanline As Single = vec0.Y + 1 To vec2.Y
+        For scanline As Int32 = vec0.Y + 1 To vec2.Y
             l1 = Vector3.Lerp(vec1, vec0, (scanline - vec2.Y) / (vec0.Y - vec1.Y))
             l2 = Vector3.Lerp(vec2, vec0, (scanline - vec2.Y) / (vec0.Y - vec2.Y))
             DrawX(l1, l2, colour)
@@ -442,7 +436,7 @@ Public Class Form1
         'this traces the two lines down the sides of a flat topped triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
         'it then calls drawx which generates the points between the vertical line end points passed to it.
         Dim l1, l2 As Vector3
-        For scanline As Single = vec0.Y To vec2.Y - 1
+        For scanline As Int32 = vec0.Y To vec2.Y - 1
             l1 = Vector3.Lerp(vec1, vec2, (scanline - vec2.Y) / (vec1.Y - vec2.Y))
             l2 = Vector3.Lerp(vec0, vec2, (scanline - vec2.Y) / (vec0.Y - vec2.Y))
             DrawX(l1, l2, colour)
@@ -450,7 +444,6 @@ Public Class Form1
     End Sub
 
     Private Sub DrawX(ByVal l1 As Vector3, ByVal l2 As Vector3, ByVal colour As Int32) 'draws a line along the x axis generating z axis coordinates for the zbuffer. (with or without alpha blending)
-        Dim loc As Int32
         If l2.X < l1.X Then
             Dim vline As Vector3 = l1
             l1 = l2
@@ -461,17 +454,19 @@ Public Class Form1
         If l2.X > l1.X Then
             Dim zslope As Single = (l1.Z - l2.Z - 0.5) / (l1.X + 1 - l2.X - 0.5)
             Dim zpos As Single = l1.Z
+            Dim loc As Int32
+            Dim scrnY As Int32 = (l2.Y * Swidth)
             If CheckBox12.Checked = True AndAlso pre_post = False Then  'alpha blending (uses the zbuffer to adjust polygon transparency - dirty hack)
-                For n As Int32 = CInt(l1.X + 1) To CInt(l2.X)
+                For n As Int32 = l1.X + 1 To l2.X
                     If n >= 0 AndAlso n < Swidth Then
-                        loc = n + (CInt(l2.Y) * Swidth)
+                        Loc = n + scrnY
                         If loc < size_array AndAlso loc >= 0 Then
                             Dim bl As Int32 = blendamount
                             If CInt(zpos) < Zbuffer(loc) Then
                                 bl -= 16
                                 Zbuffer(loc) = CInt(zpos)
                             Else
-                                bl = 255 - (blendamount * 0.2)
+                                bl = 255 - (blendamount >> 3)
                             End If
                             Dim rb As Int32 = colour And &HFF00FF
                             Dim g As Int32 = colour And &HFF00
@@ -483,9 +478,9 @@ Public Class Form1
                     zpos += zslope
                 Next n
             Else ' Not alpha blending
-                For n As Int32 = CInt(l1.X + 1) To CInt(l2.X)
+                For n As Int32 = l1.X + 1 To l2.X
                     If n >= 0 AndAlso n < Swidth Then
-                        loc = n + (CInt(l2.Y) * Swidth)
+                        loc = n + scrnY
                         If loc < size_array AndAlso loc >= 0 Then
                             If CInt(zpos) < Zbuffer(loc) Then
                                 bigarray(loc) = colour

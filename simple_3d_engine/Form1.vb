@@ -1187,7 +1187,17 @@ Public Class Form1
     End Sub
 
     Private Sub CheckBox8_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox8.CheckedChanged
-        If CheckBox8.Checked = True Then CheckBox8.ForeColor = Color.Lavender Else CheckBox8.ForeColor = Color.Black
+        picbox.Focus()
+        If CheckBox8.Checked = True Then
+            CheckBox8.ForeColor = Color.Lavender
+            '     Label23.ForeColor = Color.Yellow
+            mvelight = True
+        Else
+            CheckBox8.ForeColor = Color.Black
+            '     Label23.ForeColor = Color.White
+            mvelight = False
+        End If
+        If CheckBox4.Checked = True Then Makebmp()
         Do Until CheckBox8.Checked = False
             Makebmp()
             Application.DoEvents()
@@ -1539,11 +1549,11 @@ Public Class Form1
         If e.Button = Windows.Forms.MouseButtons.Left Then
             light.X = -(screencenter.X - MousePosition.X)
             light.Y = -(screencenter.Y - MousePosition.Y)
-            mvelight = Not mvelight
-            If mvelight = True Then Label23.ForeColor = Color.Yellow Else Label23.ForeColor = Color.White
+            If CheckBox8.Checked = True Then CheckBox8.Checked = False
+            'If mvelight = True Then Label23.ForeColor = Color.Yellow Else Label23.ForeColor = Color.White
             If CheckBox4.Checked = True Then Makebmp()
-        End If
-        If e.Button = Windows.Forms.MouseButtons.Right Then
+            End If
+            If e.Button = Windows.Forms.MouseButtons.Right Then
             light.X = 0
             light.Y = 0
             light.Z = -2
@@ -1567,6 +1577,11 @@ Public Class Form1
         Dim x, y As Int32
         x = MousePosition.X - picbox.Left
         y = MousePosition.Y
+        If CheckBox8.Checked = True Then
+            Label23.ForeColor = Color.Yellow
+        Else
+            Label23.ForeColor = Color.White
+        End If
         Label23.Text = "x " & x & " (" & x - CInt(screencenter.X) & ") , " & "y " & MousePosition.Y & " (" & MousePosition.Y - screencenter.Y & ")"
     End Sub
 End Class

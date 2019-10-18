@@ -120,8 +120,8 @@
   <data name="TextBox1.Text" xml:space="preserve">
     <value>Lighting
 
-Left clicking the mouse on the main display area positions the light and toggles follow mode on and off. 
-Follow mode works while the model is spinning. When on the light will move as you move the mouse pointer around the screen and the cursor position text will turn yellow.
+Left clicking the mouse on the main display area positions the light.  (if Dynamic Light is in effect it will be turned off)
+The Dynamic Light button (animated Sequences) Will cause the light to follow the mouse cursor around the screen. It will also pause any model rotation, lastly the cursor position text will turn yellow.
 
 Right clicking on the main display will reset the light position to its default. (The Light uses the center of the display area as 0,0)
 
@@ -151,9 +151,17 @@ The α checkbox toggles alpha blending (transparency) for the model on and off.
 The α slider controls the transparency of the object being viewed. α must be checked for the slider to take effect.
 How the transparency is applied can be changed from the menu.
 
-Standard blending will render each polygon in the model as transperant. Post Render will take the rendered model and blend what is visible with the background.   
+Standard blending will render each polygon in the model as transperant. 
+Post Render will take the rendered model and blend what is visible with the background.   
+
+Sliders:
+The slider controls are set up so most of them work best with the mouse wheel or the keyboard. Though Clicking and or Dragging works ok. 
+
+Keyboard : Arrow keys for small changes
+                       Page Up and Page Down for large changes  
 
 Background images:
-When checked the Bkg control will display an image in the background. (you need to load one from the menu first)</value>
+When checked the Bkg control will display an image in the background. (you need to load one from the menu first)
+</value>
   </data>
 </root>

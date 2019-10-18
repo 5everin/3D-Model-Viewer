@@ -225,11 +225,11 @@ Partial Class Form1
         Me.CheckBox8.Appearance = System.Windows.Forms.Appearance.Button
         Me.CheckBox8.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CheckBox8.ForeColor = System.Drawing.Color.DodgerBlue
-        Me.CheckBox8.Location = New System.Drawing.Point(113, 903)
+        Me.CheckBox8.Location = New System.Drawing.Point(112, 903)
         Me.CheckBox8.Name = "CheckBox8"
-        Me.CheckBox8.Size = New System.Drawing.Size(49, 39)
+        Me.CheckBox8.Size = New System.Drawing.Size(50, 39)
         Me.CheckBox8.TabIndex = 100
-        Me.CheckBox8.Text = "Pause"
+        Me.CheckBox8.Text = "Dynamic Light"
         Me.CheckBox8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         Me.CheckBox8.UseVisualStyleBackColor = True
         '
@@ -590,9 +590,9 @@ Partial Class Form1
         '
         Me.CheckBox9.Appearance = System.Windows.Forms.Appearance.Button
         Me.CheckBox9.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBox9.Location = New System.Drawing.Point(113, 942)
+        Me.CheckBox9.Location = New System.Drawing.Point(112, 942)
         Me.CheckBox9.Name = "CheckBox9"
-        Me.CheckBox9.Size = New System.Drawing.Size(49, 39)
+        Me.CheckBox9.Size = New System.Drawing.Size(50, 39)
         Me.CheckBox9.TabIndex = 53
         Me.CheckBox9.Text = "Reverse"
         Me.CheckBox9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter

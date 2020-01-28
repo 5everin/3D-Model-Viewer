@@ -28,7 +28,6 @@ Public Class Form1
     Dim bigarray(10) As Int32
     Dim Zbuffer(10) As Int32
     Dim bkg_image(10) As Int32
-    Dim trail As Int32 = 0
     Dim size_array As Int32
     Dim drawpolys As Boolean = True
     Dim modelcenter As New Vector3
@@ -47,13 +46,14 @@ Public Class Form1
     Dim ax, ay, az As Single 'rotatation angles
     Dim diffmult As Double = 0
     Dim mvelight As Boolean = False
-    Dim metal As Boolean = False
+    Dim LightFade As Boolean = False
     Dim LoadAModel As Boolean = True
     Dim filename As String = vbNullString
     Dim Lastpath As String = "x"
     Dim Lastpic As String = "x"
     Dim blendamount As Int32 = 172
     Dim pre_post As Boolean = False 'type of alpha blending to be used
+    Dim cfgfolder As String = IO.Directory.GetCurrentDirectory.ToString
 
     Public Structure Poly
         'the vertexes that belong to each polygon and a flag to set drawing of the polygon off or on
@@ -142,7 +142,7 @@ Public Class Form1
     Private Sub Load_Defaults()
         Dim tempstr As String
         Dim cont As Object
-        AddHandler picbox.MouseDown, AddressOf Form1_MouseDown 
+        AddHandler picbox.MouseDown, AddressOf Form1_MouseDown
         If IO.File.Exists(CurDir() & "\3dE_settings.cfg") = True Then
             Dim reader As New StreamReader(CurDir() & "\3dE_settings.cfg")
             Try
@@ -185,7 +185,7 @@ Public Class Form1
         If CheckBox8.Checked = False Then CheckBox8.ForeColor = Color.Black
         Label12.Enabled = CheckBox6.Checked
         If CheckBox10.Checked = True Then CheckBox10.Text = "C" Else CheckBox10.Text = "c"
-        If metal = True Then Button30.Text = "S" Else Button30.Text = "s"
+        If LightFade = True Then Button30.Text = "S" Else Button30.Text = "s"
         CheckBox11.Checked = False
         If IO.Directory.Exists(Lastpath) = False Then Lastpath = "x"
         If IO.Directory.Exists(Lastpic) = False Then Lastpic = "x"
@@ -270,7 +270,8 @@ Public Class Form1
     Private Sub Nu_rasterPoly()
         diffmult = TrackBar9.Value * 0.01
         If diffmult > 0.99 Then diffmult = 0.99
-        ' for each polygon (triangle) locate the 3 vetex positions,rotate them, generate a normal and map the vertexes to 2d plus perspective. Then draw the wireframe and or fill the triangles. 
+        ' for each triangle locate the 3 vetex positions,rotate them, generate a normal and map the vertexes to 2d with or without perspective.
+        ' Sort the vertexes, split the triangle if required and Then call the draw wireframe and/or filled triangle routines. 
         Parallel.For(0, polycount, Sub(f As Int32)
                                        Dim DrawAline As Boolean = CheckBox1.Checked
                                        Dim Lit_lines As Boolean = CheckBox4.Checked
@@ -292,8 +293,8 @@ Public Class Form1
                                            vec(i).Z = resultQ.Z
                                            vec(i) += modelcenter
                                        Next
-                                       '   Make_Normal(f, vec(0), vec(1), vec(2)) 'generate the face normal
-                                       polys(f).Draw_poly = True 'generate the face normal
+                                       polys(f).Draw_poly = True
+                                       'generate the face normal
                                        Dim t As Vector3 = Vector3.Subtract(vec(1), vec(0))
                                        Dim t1 As Vector3 = Vector3.Subtract(vec(2), vec(0))
                                        normals(f) = Vector3.Cross(t, t1)
@@ -303,10 +304,10 @@ Public Class Form1
                                        Dim cp As Single = Vector3.Dot(vtemp, normals(f))
                                        If CheckBox5.Checked = True Then
                                            If cp >= 0 Then polys(f).Draw_poly = False  'back face cull
-                                       Else
-                                           If cp > 0 Then normals(f) *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
+                                       ElseIf cp >= 0 Then
+                                           normals(f) *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
                                        End If
-                                           If polys(f).Draw_poly = True Then
+                                       If polys(f).Draw_poly = True Then
                                            If CheckBox6.Checked = True Then
                                                Dim cam As Int32 = CInt(camera.Z + 200) 'z clip distance (stops frame rate dropping to silly levels when geomatry starts get to close to the camera plane)
                                                For n As Int32 = 0 To 2 '   perspective transform(3D > 2D mapping) 
@@ -341,7 +342,7 @@ Public Class Form1
                                                vec(0) = vec(3)
                                            End If
                                        End If
-                                       'if entire triangle is off screen then don't draw it. 
+                                       'if entire triangle is off screen then don't attempt to draw it. 
                                        If vec(2).Y < 0 OrElse vec(0).Y > Sheight Then polys(f).Draw_poly = False
                                        If vec(0).X > Swidth AndAlso vec(1).X > Swidth AndAlso vec(2).X > Swidth Then polys(f).Draw_poly = False
                                        If vec(0).X < 0 AndAlso vec(1).X < 0 AndAlso vec(2).X < 0 Then polys(f).Draw_poly = False
@@ -358,63 +359,56 @@ Public Class Form1
                                                        If loc < bigarray.Length - 1 Then
                                                            If vec(n).Z < Zbuffer(loc) Then
                                                                bigarray(loc) = &HFFFBE0C 'orangey yellow
-                                                               Zbuffer(loc) = CInt(vec(n).Z)
+                                                               Zbuffer(loc) = CInt(vec(n).Z) - 2
                                                            End If
                                                        End If
                                                    End If
                                                Next
                                            End If
-                                           'Pick a colour scheme & Draw the wire-frame
+                                           'make a colour for non light based shading
                                            If CheckBox10.Checked = True OrElse Lit_lines = False Then
-                                               Dim Rcolour As Int32 = CInt(Abs(modelcenter.Z - vec(0).Z) * 0.18) Mod 255
-                                               Dim Gcolour As Int32 = CInt(Abs(modelcenter.X - vec(0).X) * 0.179) Mod 255
-                                               Dim Bcolour As Int32 = CInt(Abs(modelcenter.Y - vec(0).Y) * 0.181) Mod 255
+                                               Dim Rcolour As Int32 = CInt(Abs(modelcenter.Z * 0.168 - vec(0).X) * 0.138) Mod 255
+                                               Dim Gcolour As Int32 = CInt(Abs(modelcenter.X * 0.159 - vec(0).Y) * 0.159) Mod 255
+                                               Dim Bcolour As Int32 = CInt(Abs(modelcenter.Y * 0.141 - vec(0).Z) * 0.161) Mod 255
                                                colour = AlphaMask + (Rcolour << 16) + (Gcolour << 8) + Bcolour
                                            End If
-                                           If DrawAline = True Then
-                                               If Lit_lines = True Then Lighting(normals(f), colour)
-                                               Dim tcol As Int32 = colour
-                                               If fillT = True Then colour = Not (&H66000000 Xor colour) 'negative colour for wireframe (toned down brightness)
-                                               For i As Int32 = 0 To 2
-                                                   DrawLine3d((CInt(vec((i + 1) Mod 3).X)), CInt((vec((i + 1) Mod 3).Y)), CInt((vec((i + 1) Mod 3).Z)), CInt(vec(i).X), CInt(vec(i).Y), CInt(vec(i).Z), colour)
-                                               Next
-                                               colour = tcol
-                                           End If
+
                                            'Pick a colour scheme & Fill the triangle
-                                           If fillT = True Then
-                                               If DrawAline = True And Lit_lines = False Then
-                                                   colour = Obj_base_colour
+                                           '     If fillT = True Then
+                                           If DrawAline = True And Lit_lines = False Then
+                                               colour = Obj_base_colour
+                                           Else
+                                               Lighting(normals(f), colour) 'lighting
+                                           End If
+                                           If DrawAline = False AndAlso Lit_lines = False Then  '  non-lit polys
+                                               Dim test As Int32 = f >> 1 << 1
+                                               If test = f Then
+                                                   colour = &H7F808080
                                                Else
-                                                   'Pointlight(normals(f), colour) 'lighting
-                                                   Lighting(normals(f), colour) 'lighting
+                                                   colour = &H7F401090
                                                End If
-                                               If DrawAline = False AndAlso Lit_lines = False Then  '  non-lit polys
-                                                   Dim test As Int32 = f >> 1 << 1
-                                                   If test = f Then
-                                                       colour = &H7F808080
-                                                   Else
-                                                       colour = &H7F401090
-                                                   End If
-                                               End If
-                                               'force Y axis values of the vectors into int32 
-                                               For n As Int32 = 0 To 2
-                                                   vec(n).Y = CInt(vec(n).Y)
-                                               Next
-                                               'workout the triangle type and draw. 
+                                           End If
+                                           'force Y axis values of the vectors into int32 
+                                           For n As Int32 = 0 To 2
+                                               vec(n).Y = CInt(vec(n).Y)
+                                           Next
+                                           'wireframe
+                                           If DrawAline = True Then
+                                               Triangle_wire(vec(0), vec(1), colour)
+                                               Triangle_wire(vec(1), vec(2), colour)
+                                               Triangle_wire(vec(2), vec(0), colour)
+                                           End If
+                                           'workout the triangle type and draw. 
+                                           If CheckBox7.Checked = True Then
                                                If vec(1).Y = vec(2).Y Then
                                                    Flatbottom(vec(0), vec(1), vec(2), colour)
                                                ElseIf vec(0).Y = vec(1).Y Then
                                                    Flattop(vec(0), vec(1), vec(2), colour)
                                                Else
-                                                   vec(3).Y = (vec(1).Y - vec(0).Y) / (vec(2).Y - vec(0).Y) 'generate new temp vertex to split the triangle into 2
+                                                   vec(3).Y = (vec(1).Y - vec(0).Y) / (vec(2).Y - vec(0).Y) 'generate new temp vertex to split the triangle into two
                                                    vec(3) = vec(0) + (vec(2) - vec(0)) * vec(3).Y
-                                                   'If vec(1).X < vec(3).X Then
-                                                   Flatbottom(vec(0), vec(1), vec(3), colour) 'generate a triangle from the top 3 vectors
-                                                   Flattop(vec(1), vec(3), vec(2), colour) 'generate a  triangle from the bottom 3 vectors
-                                                   ' Else
-                                                   'Flatbottom(vec(0), vec(3), vec(1), colour) 'generate a lefthand triangle from the top 3 vectors 
-                                                   'Flattop(vec(3), vec(1), vec(2), colour) 'generate a lefthand triangle from the bottom 3 vectors
-                                                   'End If
+                                                   Flatbottom(vec(0), vec(1), vec(3), colour)
+                                                   Flattop(vec(1), vec(3), vec(2), colour) 'generate a  triangle from the bottom 3 vectors'generate a triangle from the top 3 vectors
                                                End If
                                            End If
                                        End If
@@ -425,10 +419,14 @@ Public Class Form1
         'this traces the two lines down the sides of a flat bottomed triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
         'it then calls drawx which generates the points between the vertical line end points passed to it.
         Dim l1, l2 As Vector3
-        For scanline As Int32 = vec0.Y + 1 To vec2.Y
+        For scanline As Int32 = vec0.Y To vec2.Y
             l1 = Vector3.Lerp(vec1, vec0, (scanline - vec2.Y) / (vec0.Y - vec1.Y))
             l2 = Vector3.Lerp(vec2, vec0, (scanline - vec2.Y) / (vec0.Y - vec2.Y))
-            DrawX(l1, l2, colour)
+            If l2.X >= l1.X Then
+                DrawX(l1, l2, colour)
+            Else
+                DrawX(l2, l1, colour)
+            End If
         Next
     End Sub
 
@@ -439,32 +437,49 @@ Public Class Form1
         For scanline As Int32 = vec0.Y To vec2.Y - 1
             l1 = Vector3.Lerp(vec1, vec2, (scanline - vec2.Y) / (vec1.Y - vec2.Y))
             l2 = Vector3.Lerp(vec0, vec2, (scanline - vec2.Y) / (vec0.Y - vec2.Y))
-            DrawX(l1, l2, colour)
+            If l2.X >= l1.X Then
+                DrawX(l1, l2, colour)
+            Else
+                DrawX(l2, l1, colour)
+            End If
+        Next
+    End Sub
+
+    Private Sub Triangle_wire(ByVal vec0 As Vector3, ByVal vec1 As Vector3, ByVal colour As Int32)
+        Dim dist As Int32 = Vector3.Distance(vec0, vec1)
+        Dim loc As Int32
+        Dim line As Vector3
+        For f As Int32 = 1 To dist
+            line = Vector3.Lerp(vec0, vec1, f / dist)
+            loc = line.X + (CInt(line.Y) * Swidth)
+            If line.X >= 0 AndAlso line.X + 1 < Swidth Then
+                If loc < size_array AndAlso loc >= 0 Then
+                    If line.Z <= Zbuffer(loc) Then
+                        bigarray(loc) = -colour
+                        Zbuffer(loc) = line.Z
+                    End If
+                End If
+            End If
         Next
     End Sub
 
     Private Sub DrawX(ByVal l1 As Vector3, ByVal l2 As Vector3, ByVal colour As Int32) 'draws a line along the x axis generating z axis coordinates for the zbuffer. (with or without alpha blending)
-        If l2.X < l1.X Then
-            Dim vline As Vector3 = l1
-            l1 = l2
-            l2 = vline
-        End If
         l1.X = CInt(l1.X)
         l2.X = CInt(l2.X)
         If l2.X > l1.X Then
-            Dim zslope As Single = (l1.Z - l2.Z - 0.5) / (l1.X + 1 - l2.X - 0.5)
+            Dim zslope As Single = (l1.Z - l2.Z) / (l1.X + 1 - l2.X - 0.0)
             Dim zpos As Single = l1.Z
             Dim loc As Int32
             Dim scrnY As Int32 = (l2.Y * Swidth)
             If CheckBox12.Checked = True AndAlso pre_post = False Then  'alpha blending (uses the zbuffer to adjust polygon transparency - dirty hack)
                 For n As Int32 = l1.X + 1 To l2.X
                     If n >= 0 AndAlso n < Swidth Then
-                        Loc = n + scrnY
+                        loc = n + scrnY
                         If loc < size_array AndAlso loc >= 0 Then
                             Dim bl As Int32 = blendamount
-                            If CInt(zpos) < Zbuffer(loc) Then
+                            If zpos < Zbuffer(loc) Then
                                 bl -= 16
-                                Zbuffer(loc) = CInt(zpos)
+                                Zbuffer(loc) = zpos
                             Else
                                 bl = 255 - (blendamount >> 3)
                             End If
@@ -482,9 +497,9 @@ Public Class Form1
                     If n >= 0 AndAlso n < Swidth Then
                         loc = n + scrnY
                         If loc < size_array AndAlso loc >= 0 Then
-                            If CInt(zpos) < Zbuffer(loc) Then
+                            If zpos < Zbuffer(loc) Then
                                 bigarray(loc) = colour
-                                Zbuffer(loc) = CInt(zpos)
+                                Zbuffer(loc) = zpos
                             End If
                         End If
                     End If
@@ -511,111 +526,6 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub DrawLine3d(ByVal x As Int32, ByVal y As Int32, ByVal z As Int32, ByVal ex As Int32, ByVal ey As Int32, ByVal ez As Int32, ByVal col As Int32)
-        'https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/
-        If x < 0 And ex < 0 Then Exit Sub
-        If ey < 0 And y < 0 Then Exit Sub
-        If x > Swidth And ex > Swidth Then Exit Sub
-        If ey > Sheight And y > Sheight Then Exit Sub
-        Dim dx As Int32 = Abs(ex - x)
-        Dim dy As Int32 = Abs(ey - y)
-        Dim dz As Int32 = Abs(ez - z)
-        '  If dz < camera.Z + 5 Then Exit Sub
-        Dim xs, ys, zs As Int32
-        Dim p1, p2 As Int32
-        Dim loc As Int32 = 0
-        If ex > x Then xs = 1 Else xs = -1
-        If ey > y Then ys = 1 Else ys = -1
-        If ez > z Then zs = 1 Else zs = -1
-        'first pixel in the line
-        If x >= 0 AndAlso x < Swidth Then
-            loc = x + (y * Swidth)
-            If loc < size_array And loc >= 0 Then
-                If z < Zbuffer(loc) Then
-                    bigarray(loc) = col
-                    Zbuffer(loc) = z - 1
-                End If
-            End If
-        End If
-        '.....
-        If dx >= dy And dx >= dz Then
-            p1 = ((dy + dy) - dx)
-            p2 = ((dz + dz) - dx)
-            Do While x <> ex
-                x += xs
-                If p1 >= 0 Then
-                    y += ys
-                    p1 -= (dx + dx)
-                End If
-                If p2 >= 0 Then
-                    z += zs
-                    p2 -= (dx + dx)
-                End If
-                p1 += dy + dy
-                p2 += dz + dz
-                If x >= 0 AndAlso x < Swidth Then
-                    loc = x + (y * Swidth)
-                    If loc < size_array And loc >= 0 Then
-                        If z < Zbuffer(loc) Then
-                            bigarray(loc) = col
-                            Zbuffer(loc) = z - 1
-                        End If
-                    End If
-                End If
-            Loop
-        ElseIf (dy >= dx And dy >= dz) Then
-            p1 = ((dx + dx) - dy)
-            p2 = ((dz + dz) - dy)
-            Do While y <> ey
-                y += ys
-                If p1 >= 0 Then
-                    x += xs
-                    p1 -= (dy + dy)
-                End If
-                If p2 >= 0 Then
-                    z += zs
-                    p2 -= (dy + dy)
-                End If
-                p1 += (dx + dx)
-                p2 += (dz + dz)
-                If x >= 0 AndAlso x < Swidth Then
-                    loc = x + (y * Swidth)
-                    If loc < size_array And loc >= 0 Then
-                        If z < Zbuffer(loc) Then
-                            bigarray(loc) = col
-                            Zbuffer(loc) = z - 1
-                        End If
-                    End If
-                End If
-            Loop
-        Else
-            p1 = (dy + dy) - dz
-            p2 = (dx + dx) - dz
-            Do While z <> ez
-                z += zs
-                If p1 > 0 Then
-                    y += ys
-                    p1 -= (dz + dz)
-                End If
-                If p2 >= 0 Then
-                    x += xs
-                    p2 -= (dz + dz)
-                End If
-                p1 += (dy + dy)
-                p2 += (dx + dx)
-                If x >= 0 AndAlso x < Swidth Then
-                    loc = x + (y * Swidth)
-                    If loc < size_array And loc >= 0 Then
-                        If z < Zbuffer(loc) Then
-                            bigarray(loc) = col
-                            Zbuffer(loc) = z - 1
-                        End If
-                    End If
-                End If
-            Loop
-        End If
-    End Sub
-
     Private Sub Lighting(ByVal norm As Vector3, ByRef colour As Int32)
         Dim rdot As Int32
         Dim gdot As Int32
@@ -629,25 +539,22 @@ Public Class Form1
             gdot = (Obj_base_colour And greenMask) >> 8
             bdot = (Obj_base_colour And blueMask)
         End If
-        Dim LightDirection As Vector3 = Vector3.Subtract(light, norm)
+        Dim LightDirection As Vector3 = Vector3.Add(light, norm)
         LightDirection = Vector3.Normalize(LightDirection)
         Dim diff As Double = Vector3.Dot(norm, LightDirection)
+        '   If diff >= 0.5 Then diff = 0.5
         If diff > diffmult Then
             diff *= (1 + diffmult)
-            If metal = True Then diff += diff * 0.178
+            diff += diff * 0.178
         Else
-            If metal = True Then diff -= diff * 0.141
-            ' If diff < 0 Then diff = 0
+            If LightFade = True Then diff -= diff * 0.141
         End If
-        rdot = CInt(rdot - light_brightness + ((diff * lightr)))
-        gdot = CInt(gdot - light_brightness + ((diff * lightg)))
-        bdot = CInt(bdot - light_brightness + ((diff * lightb)))
-        If rdot > 255 Then rdot = 255
-        If gdot > 255 Then gdot = 255
-        If bdot > 255 Then bdot = 255
-        If rdot < 0 Then rdot = 0
-        If gdot < 0 Then gdot = 0
-        If bdot < 0 Then bdot = 0
+        rdot = CInt(rdot - light_brightness + (diff * lightr))
+        gdot = CInt(gdot - light_brightness + (diff * lightg))
+        bdot = CInt(bdot - light_brightness + (diff * lightb))
+        rdot = Math.Max(0, Math.Min(255, rdot))
+        gdot = Math.Max(0, Math.Min(255, gdot))
+        bdot = Math.Max(0, Math.Min(255, bdot))
         colour = AlphaMask + (rdot << 16) + (gdot << 8) + bdot
     End Sub
 
@@ -681,7 +588,7 @@ Public Class Form1
 
     Private Sub Drawgrid()
         Dim zbool As Boolean = ToolStripMenuItem2.Checked
-        Dim gsize As Int32 = 30
+        Dim gsize As Int32 = 150
         For j As Int32 = 0 To Sheight - 1 Step gsize
             For i As Int32 = 0 To Swidth - 1 Step 3
                 Dim loc As Int32 = i + (j * Swidth)
@@ -697,12 +604,12 @@ Public Class Form1
     End Sub
 
     Private Sub Makebmp() ' generate the image on screen
-        If polycount > 1 Then
+        If vertcount > 2 Then
             time_stuff.Start()
             Clear_array()
             If mvelight = True Then
-                light.X = -(screencenter.X - MousePosition.X)
-                light.Y = -(screencenter.Y - MousePosition.Y)
+                light.X = (MousePosition.X - screencenter.X)
+                light.Y = (MousePosition.Y - screencenter.Y)
             End If
             If CheckBox3.Checked = True Then Drawgrid()
             If fillT = True OrElse CheckBox1.Checked = True OrElse CheckBox2.Checked = True Then Nu_rasterPoly()
@@ -728,12 +635,6 @@ Public Class Form1
             Else
                 Label19.Text = vbNullString
             End If
-            'If time_stuff.Elapsed.TotalMilliseconds > 2000 Then
-            '    CheckBox1.Checked = False
-            '    CheckBox2.Checked = True
-            '    CheckBox7.Checked = False
-            '    Application.DoEvents()
-            'End If
             time_stuff.Reset()
         End If
     End Sub
@@ -755,6 +656,7 @@ Public Class Form1
             Next
         Next
         Calc_centerpoint()
+        Label7.Text = "X:" & modelcenter.X.ToString("n0") & " Y:" & modelcenter.Y.ToString("n0") & " Z:" & modelcenter.Z.ToString("n0")
         Makebmp()
     End Sub
     Private Sub Calc_centerpoint()
@@ -899,6 +801,7 @@ Public Class Form1
         Label1.Text = "Vertexes imported " & counts.ToString("n0") & vbNewLine & "Polygons imported " & counts2.ToString("n0")
         polycount = counts2
         vertcount = counts
+        If polycount = 0 And vertcount > 1 Then polycount = counts
         'Scale the model to a reasonable size based on screen height
         Firstscale()
     End Sub
@@ -1028,7 +931,6 @@ Public Class Form1
         buffersize = 4
         inputFile.Read(bytes, 0, buffersize) 'read tri count
         Dim triangles As Int32 = BitConverter.ToInt32(bytes, 0)
-        ' MsgBox(triangles)
         If triangles > MAX Then
             MsgBox("File contains too many polygons")
             Exit Sub
@@ -1038,17 +940,17 @@ Public Class Form1
         polycount = 0
         vertcount = 1
         For f As Int32 = 0 To triangles - 1
-            inputFile.Read(bytes, 0, buffersize) 'read first triangle data
+            inputFile.Read(bytes, 0, buffersize) 'read first triangle data(skip the normal data)
             vect.X = BitConverter.ToSingle(bytes, 12) + screencenter.X
             vect.Y = BitConverter.ToSingle(bytes, 16) + screencenter.Y
             vect.Z = BitConverter.ToSingle(bytes, 20) + 1000
             Verts(vertcount) = vect
-            'check previous poly for matching vertexes and optimise.....
+            'check previous poly for matching vertexes and optimise.....goes here
             polys(polycount).vert1 = vertcount
             vertcount += 1
             If vertcount + 2 > MAX Then
                 MsgBox("File contains too many vertexes")
-                Exit Sub
+                Exit For
             End If
             vect.X = BitConverter.ToSingle(bytes, 24) + screencenter.X
             vect.Y = BitConverter.ToSingle(bytes, 28) + screencenter.Y
@@ -1067,7 +969,7 @@ Public Class Form1
         Next
         inputFile.Close()
         Label1.Text = "Vertexes imported " & vertcount.ToString("n0") & vbNewLine & "Polygons imported " & polycount.ToString("n0")
-        Firstscale()
+        If vertcount + 2 < MAX Then Firstscale()
         Me.Cursor = Cursors.Default
     End Sub
 
@@ -1099,8 +1001,8 @@ Public Class Form1
         If spiny = True Then SpinnerY.PerformClick()
         If spinz = True Then SpinnerZ.PerformClick()
         If tumble = True Then Tumbler.PerformClick()
+        Array.Clear(Verts, 0, Verts.Length)
         Nu_config() 'adjust for the display size
-        CheckBox5.Checked = True
         Choose(False) ' select and load an object
 
     End Sub
@@ -1123,7 +1025,7 @@ Public Class Form1
     End Sub
 
     Private Sub SaveSettingsAsDefaultToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveSettingsAsDefaultToolStripMenuItem.Click
-        Dim writer As New StreamWriter(CurDir() & "\3dE_settings.cfg")
+        Dim writer As New StreamWriter(cfgfolder & "\3dE_settings.cfg")
         Dim cont As Object
         For Each cont In Panel1.Controls
             If TypeOf cont Is CheckBox Then
@@ -1190,11 +1092,9 @@ Public Class Form1
         picbox.Focus()
         If CheckBox8.Checked = True Then
             CheckBox8.ForeColor = Color.Lavender
-            '     Label23.ForeColor = Color.Yellow
             mvelight = True
         Else
             CheckBox8.ForeColor = Color.Black
-            '     Label23.ForeColor = Color.White
             mvelight = False
         End If
         If CheckBox4.Checked = True Then Makebmp()
@@ -1250,7 +1150,7 @@ Public Class Form1
 
     Private Sub TrackBar8_Scroll(sender As Object, e As EventArgs) Handles TrackBar8.Scroll
         camera.Z = ((TrackBar8.Maximum + TrackBar8.Minimum + 1 - TrackBar8.Value) * -1) * 20
-            Clear_array()
+        Clear_array()
         Label12.Text = "Cam Z:" & camera.Z.ToString("n0")
         Makebmp()
     End Sub
@@ -1265,7 +1165,7 @@ Public Class Form1
         If CheckBox8.Checked = True Then CheckBox8.Checked = False
         ax = TrackBar10.Value - 1
         Label29.Text = ax.ToString
-        ax = ax / 180 * PI
+        ax = -ax / 180 * PI
         Makebmp()
     End Sub
     Private Sub TrackBar11_Scroll(sender As Object, e As EventArgs) Handles TrackBar11.Scroll
@@ -1508,21 +1408,20 @@ Public Class Form1
     End Sub
 
     Private Sub Button30_Click(sender As Object, e As EventArgs) Handles Button30.Click
-        metal = Not metal
-        If metal = True Then
-            Button30.Text = "S"
+        LightFade = Not LightFade
+        If LightFade = True Then
+            Button30.Text = "Fade"
         Else
-            Button30.Text = "s"
+            Button30.Text = "Standard"
         End If
-        Application.DoEvents()
         Makebmp()
     End Sub
 
 
-    Private Sub Button16_Click(sender As Object, e As EventArgs) Handles Button16.Click
-        Form2.Visible = Not Form2.Visible
-        If Form2.Visible = False Then Me.Enabled = True Else Me.Enabled = False
-    End Sub
+    'Private Sub Button16_Click(sender As Object, e As EventArgs) Handles Button16.Click
+    '    Form2.Visible = Not Form2.Visible
+    '    If Form2.Visible = False Then Me.Enabled = True Else Me.Enabled = False
+    'End Sub
 
     Private Sub CheckBox12_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox12.CheckedChanged
         Makebmp()
@@ -1532,7 +1431,6 @@ Public Class Form1
         pre_post = ToolStripMenuItem5.Checked
         Makebmp()
     End Sub
-
 
 
     Private Sub Form1_MouseEnter(sender As Object, e As EventArgs) Handles Me.MouseEnter

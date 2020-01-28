@@ -578,9 +578,9 @@ Partial Class Form1
         'CheckBox10
         '
         Me.CheckBox10.Appearance = System.Windows.Forms.Appearance.Button
-        Me.CheckBox10.Location = New System.Drawing.Point(49, 547)
+        Me.CheckBox10.Location = New System.Drawing.Point(84, 547)
         Me.CheckBox10.Name = "CheckBox10"
-        Me.CheckBox10.Size = New System.Drawing.Size(30, 21)
+        Me.CheckBox10.Size = New System.Drawing.Size(60, 21)
         Me.CheckBox10.TabIndex = 57
         Me.CheckBox10.Text = "c"
         Me.CheckBox10.TextAlign = System.Drawing.ContentAlignment.TopCenter
@@ -603,7 +603,8 @@ Partial Class Form1
         Me.TrackBar6.AutoSize = False
         Me.TrackBar6.LargeChange = 3
         Me.TrackBar6.Location = New System.Drawing.Point(132, 575)
-        Me.TrackBar6.Maximum = 64
+        Me.TrackBar6.Maximum = 32
+        Me.TrackBar6.Minimum = -128
         Me.TrackBar6.Name = "TrackBar6"
         Me.TrackBar6.Orientation = System.Windows.Forms.Orientation.Vertical
         Me.TrackBar6.Size = New System.Drawing.Size(23, 118)
@@ -615,9 +616,9 @@ Partial Class Form1
         '
         Me.Button30.Location = New System.Drawing.Point(5, 547)
         Me.Button30.Name = "Button30"
-        Me.Button30.Size = New System.Drawing.Size(30, 21)
+        Me.Button30.Size = New System.Drawing.Size(60, 21)
         Me.Button30.TabIndex = 50
-        Me.Button30.Text = "s"
+        Me.Button30.Text = "Standard"
         Me.Button30.UseVisualStyleBackColor = True
         '
         'Label22
@@ -962,7 +963,7 @@ Partial Class Form1
         Me.TrackBar7.AutoSize = False
         Me.TrackBar7.LargeChange = 200
         Me.TrackBar7.Location = New System.Drawing.Point(3, 575)
-        Me.TrackBar7.Maximum = 1200
+        Me.TrackBar7.Maximum = 5000
         Me.TrackBar7.Minimum = -200
         Me.TrackBar7.Name = "TrackBar7"
         Me.TrackBar7.Orientation = System.Windows.Forms.Orientation.Vertical

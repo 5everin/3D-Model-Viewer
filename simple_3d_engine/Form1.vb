@@ -415,6 +415,24 @@ Public Class Form1
                                    End Sub)
     End Sub
 
+    Private Sub Triangle_wire(ByVal vec0 As Vector3, ByVal vec1 As Vector3, ByVal colour As Int32)
+        Dim dist As Int32 = Vector3.Distance(vec0, vec1)
+        Dim loc As Int32
+        Dim line As Vector3
+        For f As Int32 = 1 To dist
+            line = Vector3.Lerp(vec0, vec1, f / dist)
+            loc = line.X + (CInt(line.Y) * Swidth)
+            If line.X >= 0 AndAlso line.X + 1 < Swidth Then
+                If loc < size_array AndAlso loc >= 0 Then
+                    If line.Z <= Zbuffer(loc) Then
+                        bigarray(loc) = -colour
+                        Zbuffer(loc) = line.Z - 1
+                    End If
+                End If
+            End If
+        Next
+    End Sub
+
     Private Sub Flatbottom(ByVal vec0 As Vector3, ByVal vec1 As Vector3, ByVal vec2 As Vector3, ByVal colour As Int32)
         'this traces the two lines down the sides of a flat bottomed triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
         'it then calls drawx which generates the points between the vertical line end points passed to it.
@@ -441,24 +459,6 @@ Public Class Form1
                 DrawX(l1, l2, colour)
             Else
                 DrawX(l2, l1, colour)
-            End If
-        Next
-    End Sub
-
-    Private Sub Triangle_wire(ByVal vec0 As Vector3, ByVal vec1 As Vector3, ByVal colour As Int32)
-        Dim dist As Int32 = Vector3.Distance(vec0, vec1)
-        Dim loc As Int32
-        Dim line As Vector3
-        For f As Int32 = 1 To dist
-            line = Vector3.Lerp(vec0, vec1, f / dist)
-            loc = line.X + (CInt(line.Y) * Swidth)
-            If line.X >= 0 AndAlso line.X + 1 < Swidth Then
-                If loc < size_array AndAlso loc >= 0 Then
-                    If line.Z <= Zbuffer(loc) Then
-                        bigarray(loc) = -colour
-                        Zbuffer(loc) = line.Z
-                    End If
-                End If
             End If
         Next
     End Sub
@@ -542,7 +542,6 @@ Public Class Form1
         Dim LightDirection As Vector3 = Vector3.Add(light, norm)
         LightDirection = Vector3.Normalize(LightDirection)
         Dim diff As Double = Vector3.Dot(norm, LightDirection)
-        '   If diff >= 0.5 Then diff = 0.5
         If diff > diffmult Then
             diff *= (1 + diffmult)
             diff += diff * 0.178

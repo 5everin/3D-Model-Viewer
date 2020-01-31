@@ -31,6 +31,7 @@ Public Class Form1
     Dim size_array As Int32
     Dim drawpolys As Boolean = True
     Dim modelcenter As New Vector3
+    Dim Mscale As Double = 1
     Dim tumble As Boolean = False
     Dim spinx As Boolean = False
     Dim spiny As Boolean = False
@@ -38,7 +39,6 @@ Public Class Form1
     Dim bmp As Bitmap
     Dim bkg As Bitmap
     Dim spinspeed As Double
-    Dim fillT As Boolean = False
     Dim light As Vector3
     Dim lightr, lightg, lightb As Int32
     Dim Obj_base_colour As Int32 = &HFF010101
@@ -69,7 +69,13 @@ Public Class Form1
         GroupBox2.Left = GroupBox1.Left
         Make_logo()
         Nu_config()
-        If Sheight > 1050 Then Label19.Left += 8
+        'adjust the position of the panel controls as there will be no vertical scrollbar displayed  
+        If Sheight >= 1050 Then
+            Dim cont As Object
+            For Each cont In Panel1.Controls
+                cont.left += 8
+            Next
+        End If
         If IO.File.Exists(CurDir() & "\logo") = True Then
             Choose(True)
         Else
@@ -125,6 +131,7 @@ Public Class Form1
         AddHandler picbox.MouseEnter, AddressOf Form1_MouseEnter
         '  AddHandler picbox.KeyPress, AddressOf Form1_KeyPress 'keyboard
         Controls.Add(picbox)
+
         light.X = 0
         light.Y = 0
         light.Z = TrackBar7.Value * -1
@@ -184,8 +191,8 @@ Public Class Form1
         End If
         If CheckBox8.Checked = False Then CheckBox8.ForeColor = Color.Black
         Label12.Enabled = CheckBox6.Checked
-        If CheckBox10.Checked = True Then CheckBox10.Text = "C" Else CheckBox10.Text = "c"
-        If LightFade = True Then Button30.Text = "S" Else Button30.Text = "s"
+        If CheckBox10.Checked = True Then CheckBox10.Text = "Shading + Light" Else CheckBox10.Text = "Light"
+        '  If LightFade = True Then Button30.Text = "S" Else Button30.Text = "s"
         CheckBox11.Checked = False
         If IO.Directory.Exists(Lastpath) = False Then Lastpath = "x"
         If IO.Directory.Exists(Lastpic) = False Then Lastpic = "x"
@@ -218,13 +225,14 @@ Public Class Form1
                     Label1.Text = "importing"
                     If filename.Substring(filename.Length - 1) = "J" Or filename.Substring(filename.Length - 1) = "j" Then
                         Read_obj(filename)
-                        Label2.Text = "Model:" & vbNewLine & import.SafeFileName
+                        Label2.Text = "Model" & vbNewLine & import.SafeFileName
                     Else
                         Read_STL(filename)
-                        Label2.Text = "Model:" & vbNewLine & import.SafeFileName
+                        Label2.Text = "Model" & vbNewLine & import.SafeFileName
                     End If
                     Label7.Text = "X:" & modelcenter.X.ToString("n0") & " Y:" & modelcenter.Y.ToString("n0") & " Z:" & modelcenter.Z.ToString("n0")
                 Else
+                    Label2.Text = "Model" & vbNewLine & "Nothing Loaded"
                     Exit Sub
                 End If
                 Lastpath = Mid(filename, 1, filename.Length - import.SafeFileName.Length)
@@ -242,6 +250,7 @@ Public Class Form1
             import.Dispose()
         Else
             Read_obj(CurDir() & "\logo")
+            Label2.Text = "Model" & vbNewLine & "Default Model"
         End If
     End Sub
 
@@ -257,14 +266,6 @@ Public Class Form1
                                                  Zbuffer(f) = &H6F000000
                                              End Sub)
         End If
-    End Sub
-
-    Private Sub Make_Normal(indx As Int32, vec0 As Vector3, vec1 As Vector3, vec2 As Vector3) ' not used
-        polys(indx).Draw_poly = True
-        Dim t As Vector3 = Vector3.Subtract(vec1, vec0)
-        Dim t1 As Vector3 = Vector3.Subtract(vec2, vec0)
-        normals(indx) = Vector3.Cross(t, t1)
-        normals(indx) = Vector3.Normalize(normals(indx))
     End Sub
 
     Private Sub Nu_rasterPoly()
@@ -372,7 +373,6 @@ Public Class Form1
                                                Dim Bcolour As Int32 = CInt(Abs(modelcenter.Y * 0.141 - vec(0).Z) * 0.161) Mod 255
                                                colour = AlphaMask + (Rcolour << 16) + (Gcolour << 8) + Bcolour
                                            End If
-
                                            'Pick a colour scheme & Fill the triangle
                                            '     If fillT = True Then
                                            If DrawAline = True And Lit_lines = False Then
@@ -415,17 +415,22 @@ Public Class Form1
                                    End Sub)
     End Sub
 
-    Private Sub Triangle_wire(ByVal vec0 As Vector3, ByVal vec1 As Vector3, ByVal colour As Int32)
+    Private Sub Triangle_wire(ByRef vec0 As Vector3, ByRef vec1 As Vector3, ByRef colour As Int32)
+        Dim LineQlty As Int32 = 1
+        If ToolStripMenuItem6.Checked = True Then LineQlty = 3
         Dim dist As Int32 = Vector3.Distance(vec0, vec1)
-        Dim loc As Int32
         Dim line As Vector3
-        For f As Int32 = 1 To dist
+        ' Dim line As Vector3= Vector3.Subtract(vec0, vec1) 'manual distance calculation
+        ' line *= line
+        ' Dim dist As Double = Sqrt(line.X + line.Y + line.Z)
+        Dim loc As Int32
+        For f As Int32 = 1 To CInt(dist) Step LineQlty
             line = Vector3.Lerp(vec0, vec1, f / dist)
             loc = line.X + (CInt(line.Y) * Swidth)
             If line.X >= 0 AndAlso line.X + 1 < Swidth Then
                 If loc < size_array AndAlso loc >= 0 Then
                     If line.Z <= Zbuffer(loc) Then
-                        bigarray(loc) = -colour
+                        bigarray(loc) = Not (colour)
                         Zbuffer(loc) = line.Z - 1
                     End If
                 End If
@@ -433,7 +438,7 @@ Public Class Form1
         Next
     End Sub
 
-    Private Sub Flatbottom(ByVal vec0 As Vector3, ByVal vec1 As Vector3, ByVal vec2 As Vector3, ByVal colour As Int32)
+    Private Sub Flatbottom(ByRef vec0 As Vector3, ByRef vec1 As Vector3, ByRef vec2 As Vector3, ByRef colour As Int32)
         'this traces the two lines down the sides of a flat bottomed triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
         'it then calls drawx which generates the points between the vertical line end points passed to it.
         Dim l1, l2 As Vector3
@@ -448,7 +453,7 @@ Public Class Form1
         Next
     End Sub
 
-    Private Sub Flattop(ByVal vec0 As Vector3, ByVal vec1 As Vector3, ByVal vec2 As Vector3, ByVal colour As Int32)
+    Private Sub Flattop(ByRef vec0 As Vector3, ByRef vec1 As Vector3, ByRef vec2 As Vector3, ByRef colour As Int32)
         'this traces the two lines down the sides of a flat topped triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
         'it then calls drawx which generates the points between the vertical line end points passed to it.
         Dim l1, l2 As Vector3
@@ -463,7 +468,7 @@ Public Class Form1
         Next
     End Sub
 
-    Private Sub DrawX(ByVal l1 As Vector3, ByVal l2 As Vector3, ByVal colour As Int32) 'draws a line along the x axis generating z axis coordinates for the zbuffer. (with or without alpha blending)
+    Private Sub DrawX(ByRef l1 As Vector3, ByRef l2 As Vector3, ByRef colour As Int32) 'draws a line along the x axis generating z axis coordinates for the zbuffer. (with or without alpha blending)
         l1.X = CInt(l1.X)
         l2.X = CInt(l2.X)
         If l2.X > l1.X Then
@@ -498,6 +503,16 @@ Public Class Form1
                         loc = n + scrnY
                         If loc < size_array AndAlso loc >= 0 Then
                             If zpos < Zbuffer(loc) Then
+
+                                ' smooth shading experiment ...speed  test
+                                'Dim norm As Vector3
+                                'Dim t As Vector3 = Vector3.Subtract(l1, l2)
+                                'l1.X = n
+                                'Dim t1 As Vector3 = Vector3.Subtract(l2, l1)
+                                'norm = Vector3.Cross(t, t1)
+                                'norm = Vector3.Normalize(norm)
+                                'Lighting(l1, colour)
+
                                 bigarray(loc) = colour
                                 Zbuffer(loc) = zpos
                             End If
@@ -526,7 +541,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Lighting(ByVal norm As Vector3, ByRef colour As Int32)
+    Private Sub Lighting(ByRef norm As Vector3, ByRef colour As Int32)
         Dim rdot As Int32
         Dim gdot As Int32
         Dim bdot As Int32
@@ -583,6 +598,7 @@ Public Class Form1
         CheckBox11.Enabled = True
         CheckBox11.Checked = True
         Makebmp()
+        GC.Collect()
     End Sub
 
     Private Sub Drawgrid()
@@ -611,7 +627,7 @@ Public Class Form1
                 light.Y = (MousePosition.Y - screencenter.Y)
             End If
             If CheckBox3.Checked = True Then Drawgrid()
-            If fillT = True OrElse CheckBox1.Checked = True OrElse CheckBox2.Checked = True Then Nu_rasterPoly()
+            If CheckBox7.Checked = True OrElse CheckBox1.Checked = True OrElse CheckBox2.Checked = True Then Nu_rasterPoly()
             If bigarray.Length = size_array Then
                 If ToolStripMenuItem2.Checked = True Then
                     Parallel.For(0, Zbuffer.Length - 1, Sub(f As Int32) 'overwrite bigarray with a visualisation of the zbuffer
@@ -644,6 +660,8 @@ Public Class Form1
                                        Verts(f) = Vector3.Multiply(Verts(f), zoom)
                                        Verts(f) = Vector3.Add(Verts(f), modelcenter)
                                    End Sub)
+        Mscale *= zoom
+        Label8.Text = "Scale x " & Mscale.ToString("n1")
     End Sub
     Private Sub Center()
         For n As Int32 = 0 To 1
@@ -829,6 +847,8 @@ Public Class Form1
             End If
             Center()
         Next ff
+        Mscale = 1
+        Magnify(1)
     End Sub
 
     Private Sub Write_Stl()
@@ -1083,7 +1103,6 @@ Public Class Form1
     End Sub
 
     Private Sub CheckBox7_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox7.CheckedChanged
-        fillT = CheckBox7.Checked
         Makebmp()
     End Sub
 
@@ -1104,7 +1123,7 @@ Public Class Form1
     End Sub
 
     Private Sub CheckBox10_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox10.CheckedChanged
-        If CheckBox10.Checked = True Then CheckBox10.Text = "C" Else CheckBox10.Text = "c"
+        If CheckBox10.Checked = True Then CheckBox10.Text = "Shading && Light" Else CheckBox10.Text = "Light"
         Makebmp()
     End Sub
 
@@ -1407,15 +1426,13 @@ Public Class Form1
     End Sub
 
     Private Sub Button30_Click(sender As Object, e As EventArgs) Handles Button30.Click
-        LightFade = Not LightFade
-        If LightFade = True Then
-            Button30.Text = "Fade"
-        Else
-            Button30.Text = "Standard"
-        End If
-        Makebmp()
+        TrackBar10.Value = 1
+        TrackBar11.Value = 1
+        TrackBar12.Value = 1
+        TrackBar10_Scroll(Me, e)
+        TrackBar11_Scroll(Me, e)
+        TrackBar12_Scroll(Me, e)
     End Sub
-
 
     'Private Sub Button16_Click(sender As Object, e As EventArgs) Handles Button16.Click
     '    Form2.Visible = Not Form2.Visible
@@ -1431,6 +1448,13 @@ Public Class Form1
         Makebmp()
     End Sub
 
+    Private Sub ToolStripMenuItem6_CheckedChanged(sender As Object, e As EventArgs) Handles ToolStripMenuItem6.CheckedChanged
+        Makebmp()
+    End Sub
+
+    Private Sub ToolStripMenuItem6_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem6.Click
+        ToolStripMenuItem6.Checked = Not ToolStripMenuItem6.Checked
+    End Sub
 
     Private Sub Form1_MouseEnter(sender As Object, e As EventArgs) Handles Me.MouseEnter
         picbox.Focus()

@@ -365,9 +365,10 @@ Public Class Form1
                                        FillsnCols(f, vec(0), colour)
                                        'wireframe
                                        If CheckBox1.Checked = True Then
-                                           Triangle_wire(vec(0), vec(1), colour)
-                                           Triangle_wire(vec(1), vec(2), colour)
-                                           Triangle_wire(vec(2), vec(0), colour)
+                                           Dim tmpc As Int32 = Not (colour)
+                                           Triangle_wire(vec(0), vec(1), tmpc)
+                                           Triangle_wire(vec(1), vec(2), tmpc)
+                                           Triangle_wire(vec(2), vec(0), tmpc)
                                        End If
                                        'workout the triangle type and draw. 
                                        If CheckBox7.Checked = True Then
@@ -411,10 +412,8 @@ Public Class Form1
         End If
     End Sub
 
-
     Private Sub Triangle_wire(vec0 As Vector3, vec1 As Vector3, colour As Int32)
         Dim LineQlty As Int32 = 1
-        If CheckBox7.Checked = True Then colour = Not colour
         If ToolStripMenuItem6.Checked = True Then LineQlty = 3
         Dim dist As Int32 = Vector3.Distance(vec0, vec1)
         Dim line As Vector3

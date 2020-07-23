@@ -62,8 +62,6 @@ Public Class Form1
     End Structure
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
-
         Load_Defaults() ' load custom defaults config file
         GroupBox2.Top = GroupBox1.Top
         GroupBox2.Left = GroupBox1.Left
@@ -365,10 +363,17 @@ Public Class Form1
                                        FillsnCols(f, vec(0), colour)
                                        'wireframe
                                        If CheckBox1.Checked = True Then
+                                           Dim fw As Boolean = ToolStripMenuItem6.Checked
                                            Dim tmpc As Int32 = Not (colour)
-                                           Triangle_wire(vec(0), vec(1), tmpc)
-                                           Triangle_wire(vec(1), vec(2), tmpc)
-                                           Triangle_wire(vec(2), vec(0), tmpc)
+                                           Dim dist As Int32 = Vector3.Distance(vec(0), vec(1))
+                                           If fw = True Then dist >>= 1
+                                           Triangle_wire(vec(0), vec(1), tmpc, dist)
+                                           dist = Vector3.Distance(vec(1), vec(2))
+                                           If fw = True Then dist >>= 1
+                                           Triangle_wire(vec(1), vec(2), tmpc, dist)
+                                           dist = Vector3.Distance(vec(2), vec(0))
+                                           If fw = True Then dist >>= 1
+                                           Triangle_wire(vec(2), vec(0), tmpc, dist)
                                        End If
                                        'workout the triangle type and draw. 
                                        If CheckBox7.Checked = True Then
@@ -379,6 +384,7 @@ Public Class Form1
                                            Else
                                                vec(3).Y = (vec(1).Y - vec(0).Y) / (vec(2).Y - vec(0).Y) 'generate new temp vertex to split the triangle into two
                                                vec(3) = vec(0) + (vec(2) - vec(0)) * vec(3).Y
+                                               vec(3).Y = vec(1).Y
                                                Flatbottom(vec(0), vec(1), vec(3), colour)
                                                Flattop(vec(1), vec(3), vec(2), colour) 'generate a  triangle from the bottom 3 vectors'generate a triangle from the top 3 vectors
                                            End If
@@ -412,13 +418,10 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Triangle_wire(vec0 As Vector3, vec1 As Vector3, colour As Int32)
-        Dim LineQlty As Int32 = 1
-        If ToolStripMenuItem6.Checked = True Then LineQlty = 3
-        Dim dist As Int32 = Vector3.Distance(vec0, vec1)
-        Dim line As Vector3
+    Private Sub Triangle_wire(vec0 As Vector3, vec1 As Vector3, colour As Int32, dist As Int32)
+           Dim line As Vector3
         Dim loc As Int32
-        For f As Int32 = 1 To Floor(dist) Step LineQlty
+        For f As Int32 = 1 To Floor(dist)
             line = Vector3.Lerp(vec0, vec1, f / dist)
             loc = line.X + (Floor(line.Y) * Swidth)
             If line.X >= 0 AndAlso line.X + 1 < Swidth Then

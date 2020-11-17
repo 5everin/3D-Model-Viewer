@@ -252,9 +252,11 @@ Public Class Form1
     End Sub
 
     Private Sub Clear_array()
+
+
         If CheckBox11.Checked = False Then
-            Parallel.For(0, bigarray.Length, Sub(f As Int32)
-                                                 If bigarray(f) <> &HFF000000 Then bigarray(f) = &HFF000000 'just clear the array 
+            Parallel.For(0, Bigarray.Length, Sub(f As Int32)
+                                                 If Bigarray(f) <> &HFF000000 Then Bigarray(f) = &HFF000000 'just clear the array 
                                                  If Zbuffer(f) < &H6F000000 Then Zbuffer(f) = &H6F000000 ' reset the zbuffer
                                              End Sub)
         Else
@@ -271,12 +273,14 @@ Public Class Form1
         ' for each triangle locate the 3 vetex positions,rotate them, generate a normal and map the vertexes to 2d with or without perspective.
         ' Sort the vertexes, split the triangle if required and Then call the draw wireframe and/or filled triangle routines. 
         Parallel.For(0, polycount, Sub(f As Int32)
+                                       Dim camvec As Vector3 = camera
                                        Dim colour As Int32 = 0
+                                       Dim norml As Vector3
                                        'copy triangle vertexes to 3 temp vectors for transforms etc. (original model data is not modified in any way. The image is generated from these copied triangles)
                                        Dim vec(3) As Vector3
-                                       vec(0) = Verts(polys(f).vert1)
-                                       vec(1) = Verts(polys(f).vert2)
-                                       vec(2) = Verts(polys(f).vert3)
+                                       vec(0) = Verts(Polys(f).vert1)
+                                       vec(1) = Verts(Polys(f).vert2)
+                                       vec(2) = Verts(Polys(f).vert3)
                                        'rotate the vertexes 
                                        Dim inputQ As Quaternion
                                        Dim RotatedQ As Quaternion
@@ -292,25 +296,26 @@ Public Class Form1
                                        'generate the face normal
                                        Dim tmp As Vector3 = Vector3.Subtract(vec(1), vec(0))
                                        vec(3) = Vector3.Subtract(vec(2), vec(0))
-                                       Normals(f) = Vector3.Cross(tmp, vec(3))
-                                       Normals(f) = Vector3.Normalize(normals(f))
-                                       tmp = normals(f)
-                                       tmp.Z -= camera.Z
-                                       Dim cp As Single = Vector3.Dot(tmp, normals(f))
+                                       norml = Vector3.Cross(tmp, vec(3))
+                                       norml = Vector3.Normalize(norml)
+                                       tmp = norml
+                                       tmp.Z -= camvec.Z
+                                       Dim cp As Single = Vector3.Dot(tmp, norml)
                                        If CheckBox5.Checked = True Then
                                            If cp > 0 Then Exit Sub 'back face cull
                                        ElseIf cp >= 0 Then
-                                           normals(f) *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
+                                           norml *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
                                        End If
+                                       Normals(f) = norml
                                        If CheckBox6.Checked = True Then
-                                           Dim cam As Int32 = Floor(camera.Z + 200) 'z clip distance (stops frame rate dropping to silly levels when geomatry starts get to close to the camera )
+                                           Dim cam As Int32 = Floor(camvec.Z + 200) 'z clip distance (stops frame rate dropping to silly levels when geomatry starts get to close to the camera )
                                            For n As Int32 = 0 To 2 '   perspective transform for each vertex(3D > 2D mapping) 
-                                               vec(n).X = camera.Z * (vec(n).X - camera.X)
-                                               vec(n).X /= (camera.Z - vec(n).Z)
-                                               vec(n).X += camera.X
-                                               vec(n).Y = camera.Z * (vec(n).Y - camera.Y)
-                                               vec(n).Y /= (camera.Z - vec(n).Z)
-                                               vec(n).Y += camera.Y
+                                               vec(n).X = camvec.Z * (vec(n).X - camvec.X)
+                                               vec(n).X /= (camvec.Z - vec(n).Z)
+                                               vec(n).X += camvec.X
+                                               vec(n).Y = camvec.Z * (vec(n).Y - camvec.Y)
+                                               vec(n).Y /= (camvec.Z - vec(n).Z)
+                                               vec(n).Y += camvec.Y
                                                If cam > vec(n).Z = True Then
                                                    If Abs(vec(n).X) > (Swidth << 1) Or Abs(vec(n).Y) > (Sheight << 1) Then Exit Sub
                                                    If cam + 2 > (vec(n).Z) Then Exit Sub ' clip z if it comes too close to the camera on the z axis.
@@ -428,88 +433,80 @@ Public Class Form1
                 If loc < size_array AndAlso loc >= 0 Then
                     If line.Z <= Zbuffer(loc) Then
                         Bigarray(loc) = colour
-                        Zbuffer(loc) = line.Z - 1
-                    End If
+            Zbuffer(loc) = line.Z - 2
+          End If
                 End If
             End If
         Next
     End Sub
 
-    Private Sub Flatbottom(ByRef vec0 As Vector3, ByRef vec1 As Vector3, ByRef vec2 As Vector3, ByRef colour As Int32)
-        'this traces the two lines down the sides of a flat bottomed triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
-        'it then calls drawx which generates the points between the vertical line end points passed to it.
-        Dim l1, l2 As Vector3
-        For scanline As Int32 = vec0.Y To vec2.Y
-            l1 = Vector3.Lerp(vec1, vec0, (scanline - vec2.Y) / (vec0.Y - vec1.Y))
-            l2 = Vector3.Lerp(vec2, vec0, (scanline - vec2.Y) / (vec0.Y - vec2.Y))
-            If l2.X >= l1.X Then
-                DrawX(l1, l2, colour)
+  Private Sub Flatbottom(ByRef vec0 As Vector3, ByRef vec1 As Vector3, ByRef vec2 As Vector3, ByRef colour As Int32)
+    'this traces the two lines down the sides of a flat bottomed triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
+    'it then calls drawx which generates the points between the vertical line end points passed to it.
+    For scanline As Int32 = vec0.Y To vec2.Y
+      Dim l1 As Vector3 = Vector3.Lerp(vec1, vec0, (scanline - vec2.Y) / (vec0.Y - vec1.Y))
+      Dim l2 As Vector3 = Vector3.Lerp(vec2, vec0, (scanline - vec2.Y) / (vec0.Y - vec2.Y))
+      If l2.X >= l1.X Then
+        DrawX(l1, l2, colour)
+      Else
+        DrawX(l2, l1, colour)
+      End If
+    Next
+  End Sub
+
+  Private Sub Flattop(ByRef vec0 As Vector3, ByRef vec1 As Vector3, ByRef vec2 As Vector3, ByRef colour As Int32)
+    'this traces the two lines down the sides of a flat topped triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
+    'it then calls drawx which generates the points between the vertical line end points passed to it.
+
+    For scanline As Int32 = vec0.Y To vec2.Y - 1
+      Dim l1 As Vector3 = Vector3.Lerp(vec1, vec2, (scanline - vec2.Y) / (vec1.Y - vec2.Y))
+      Dim l2 As Vector3 = Vector3.Lerp(vec0, vec2, (scanline - vec2.Y) / (vec0.Y - vec2.Y))
+      If l2.X >= l1.X Then
+        DrawX(l1, l2, colour)
+      Else
+        DrawX(l2, l1, colour)
+      End If
+    Next
+  End Sub
+
+
+  Private Sub DrawX(ByVal l1 As Vector3, ByVal l2 As Vector3, ByVal colour As Int32) 'draws a line along the x axis generating z axis coordinates for the zbuffer. (with or without alpha blending)
+    l1.X = Floor(l1.X)
+    l2.X = Floor(l2.X)
+    Dim zslope As Double = (l1.Z - l2.Z) / (l1.X - l2.X)
+    Dim zpos As Double = l1.Z
+
+    Dim loc As Int32
+    For n As Int32 = l1.X + 1 To l2.X
+      If n >= 0 AndAlso n < Swidth Then
+        loc = n + (l2.Y * Swidth)
+        If loc < size_array AndAlso loc >= 0 Then
+          If zpos < Zbuffer(loc) Then
+            If CheckBox12.Checked = True AndAlso pre_post = False Then  'alpha blending (uses the zbuffer to adjust polygon transparency - dirty hack)
+              Dim bl As Int32 = blendamount
+              If zpos < Zbuffer(loc) Then
+                bl -= 16
+                Zbuffer(loc) = zpos
+              Else
+                bl = 255 - (blendamount >> 3)
+              End If
+              Dim rb As Int32 = colour And &HFF00FF
+              Dim g As Int32 = colour And &HFF00
+              rb += ((Bigarray(loc) And &HFF00FF) - rb) * (bl) >> 8
+              g += ((Bigarray(loc) And &HFF00) - g) * (bl) >> 8
+              Bigarray(loc) = (rb And &HFF00FF) Or (g And &HFF00)
             Else
-                DrawX(l2, l1, colour)
+              Bigarray(loc) = colour
+              Zbuffer(loc) = zpos
             End If
-        Next
-    End Sub
+          End If
+          End If
+      End If
+      zpos += zslope
+    Next n
+  End Sub
 
-    Private Sub Flattop(ByRef vec0 As Vector3, ByRef vec1 As Vector3, ByRef vec2 As Vector3, ByRef colour As Int32)
-        'this traces the two lines down the sides of a flat topped triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...
-        'it then calls drawx which generates the points between the vertical line end points passed to it.
-        Dim l1, l2 As Vector3
-        For scanline As Int32 = vec0.Y To vec2.Y - 1
-            l1 = Vector3.Lerp(vec1, vec2, (scanline - vec2.Y) / (vec1.Y - vec2.Y))
-            l2 = Vector3.Lerp(vec0, vec2, (scanline - vec2.Y) / (vec0.Y - vec2.Y))
-            If l2.X >= l1.X Then
-                DrawX(l1, l2, colour)
-            Else
-                DrawX(l2, l1, colour)
-            End If
-        Next
-    End Sub
-
-    Private Sub DrawX(ByRef l1 As Vector3, ByRef l2 As Vector3, ByRef colour As Int32) 'draws a line along the x axis generating z axis coordinates for the zbuffer. (with or without alpha blending)
-        l1.X = Floor(l1.X)
-        l2.X = Floor(l2.X)
-        Dim zslope As Single = (l1.Z - l2.Z) / (l1.X + 1 - l2.X - 0.0)
-        Dim zpos As Single = l1.Z
-        Dim loc As Int32
-        Dim scrnY As Int32 = (l2.Y * Swidth)
-        If CheckBox12.Checked = True AndAlso pre_post = False Then  'alpha blending (uses the zbuffer to adjust polygon transparency - dirty hack)
-            For n As Int32 = l1.X + 1 To l2.X
-                If n >= 0 AndAlso n < Swidth Then
-                    loc = n + scrnY
-                    If loc < size_array AndAlso loc >= 0 Then
-                        Dim bl As Int32 = blendamount
-                        If zpos < Zbuffer(loc) Then
-                            bl -= 16
-                            Zbuffer(loc) = zpos
-                        Else
-                            bl = 255 - (blendamount >> 3)
-                        End If
-                        Dim rb As Int32 = colour And &HFF00FF
-                        Dim g As Int32 = colour And &HFF00
-                        rb += ((Bigarray(loc) And &HFF00FF) - rb) * (bl) >> 8
-                        g += ((Bigarray(loc) And &HFF00) - g) * (bl) >> 8
-                        Bigarray(loc) = (rb And &HFF00FF) Or (g And &HFF00)
-                    End If
-                End If
-                zpos += zslope
-            Next n
-        Else ' Not alpha blending
-            For n As Int32 = l1.X + 1 To l2.X
-                If n >= 0 AndAlso n < Swidth Then
-                    loc = n + scrnY
-                    If loc < size_array AndAlso loc >= 0 Then
-                        If zpos < Zbuffer(loc) Then
-                            Bigarray(loc) = colour
-                            Zbuffer(loc) = zpos
-                        End If
-                    End If
-                End If
-                zpos += zslope
-            Next n
-        End If
-    End Sub
-
-    Private Sub AlphaBlend() ' post processing version of alpha blend ----will always obscure internal polygons
+  Private Sub AlphaBlend() ' post processing version of alpha blend ----will always obscure internal polygons
         If ToolStripMenuItem2.Checked = False Then
             Parallel.For(0, Zbuffer.Length - 1, Sub(f As Int32)
                                                     If Zbuffer(f) < &H6F000000 Then
@@ -555,36 +552,34 @@ Public Class Form1
         colour = AlphaMask + (rdot << 16) + (gdot << 8) + bdot
     End Sub
 
-    Private Sub Make_bkg()
-        LoadAModel = False
-        Choose(False)
-        If filename = "xx" Then Exit Sub
-        Try
-            Array.Resize(Of Int32)(bkg_image, Swidth * Sheight)
-            Dim Bkground As Bitmap 'bitmap to hold the background image
-            Bkground = New Bitmap(Swidth, Sheight, Imaging.PixelFormat.Format32bppArgb)
-            Dim g As Graphics = Graphics.FromImage(Bkground)
-            g.DrawImage(bkg, 0, 0, Swidth, Sheight)
-            Dim bkFinishedFramedata As System.Drawing.Imaging.BitmapData
-            Dim bpixelcount As Int32
-            bkFinishedFramedata = Bkground.LockBits(rec, Drawing.Imaging.ImageLockMode.ReadOnly, Bkground.PixelFormat)
-            bpixelcount = (bkFinishedFramedata.Stride * Sheight) \ 4
-            System.Runtime.InteropServices.Marshal.Copy(bkFinishedFramedata.Scan0, bkg_image, 0, bpixelcount)
-            Bkground.UnlockBits(bkFinishedFramedata)
-            ''free up resources/tidy
-            Bkground.Dispose()
-            g.Dispose()
-        Catch oops As Exception
-            MsgBox("Could not load the image try another")
-            Exit Sub
-        End Try
-        CheckBox11.Enabled = True
-        CheckBox11.Checked = True
-        Makebmp()
-        GC.Collect()
-    End Sub
+  Private Sub Make_bkg()
+    LoadAModel = False
+    Choose(False)
+    If filename = "xx" Then Exit Sub
+    Try
+      Array.Resize(Of Int32)(bkg_image, Swidth * Sheight)
+      Dim Bkground As Bitmap 'bitmap to hold the background image
+      Bkground = New Bitmap(Swidth, Sheight, Imaging.PixelFormat.Format32bppArgb)
+      Dim g As Graphics = Graphics.FromImage(Bkground)
+      g.DrawImage(bkg, 0, 0, Swidth, Sheight)
+      Dim bkFinishedFramedata As System.Drawing.Imaging.BitmapData
+      Dim bpixelcount As Int32
+      bkFinishedFramedata = Bkground.LockBits(rec, Drawing.Imaging.ImageLockMode.ReadOnly, Bkground.PixelFormat)
+      bpixelcount = (bkFinishedFramedata.Stride * Sheight) \ 4
+      System.Runtime.InteropServices.Marshal.Copy(bkFinishedFramedata.Scan0, bkg_image, 0, bpixelcount)
+      Bkground.UnlockBits(bkFinishedFramedata)
+      ''free up resources/tidy
+      Bkground.Dispose()
+      g.Dispose()
+    Catch oops As Exception
+      MsgBox("Could not load the image try another")
+      Exit Sub
+    End Try
+    CheckBox11.Enabled = True
+    CheckBox11.Checked = True
+  End Sub
 
-    Private Sub Drawgrid()
+  Private Sub Drawgrid()
         Dim zbool As Boolean = ToolStripMenuItem2.Checked
         Dim gsize As Int32 = 150
         For j As Int32 = 0 To Sheight - 1 Step gsize
@@ -650,7 +645,7 @@ Public Class Form1
                                        Verts(f) = Vector3.Add(Verts(f), modelcenter)
                                    End Sub)
         Mscale *= zoom
-        Label8.Text = "Scale x " & Mscale.ToString("n1")
+        Label8.Text = "Scale x " & Mscale.ToString("n2")
     End Sub
     Private Sub Center()
         For n As Int32 = 0 To 1
@@ -1377,12 +1372,12 @@ Public Class Form1
                         randomz *= -1
                 End Select
             End If
-            If CheckBox8.Checked = False Then
-                ax += (spinspeed * randomx) / 180 * PI
-                ay += (spinspeed * randomy) / 180 * PI
-                az += (spinspeed * randomz) / 180 * PI
-            End If
-            Makebmp()
+      '     If CheckBox8.Checked = False Then
+      ax += (spinspeed * randomx) / 180 * PI
+      ay += (spinspeed * randomy) / 180 * PI
+      az += (spinspeed * randomz) / 180 * PI
+      '   End If
+      Makebmp()
             Application.DoEvents()
             If tumble = False Then
                 Exit Do

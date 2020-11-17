@@ -1070,52 +1070,54 @@ Partial Class Form1
         '
         Me.OpenAModelToolStripMenuItem.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.OpenAModelToolStripMenuItem.Name = "OpenAModelToolStripMenuItem"
-        Me.OpenAModelToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
+        Me.OpenAModelToolStripMenuItem.Size = New System.Drawing.Size(204, 22)
         Me.OpenAModelToolStripMenuItem.Text = "Open a Model"
         '
         'ExportModelToolStripMenuItem
         '
         Me.ExportModelToolStripMenuItem.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.ExportModelToolStripMenuItem.Name = "ExportModelToolStripMenuItem"
-        Me.ExportModelToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
+        Me.ExportModelToolStripMenuItem.Size = New System.Drawing.Size(204, 22)
         Me.ExportModelToolStripMenuItem.Text = "Export Model (Obj)"
         '
         'ToolStripMenuItem3
         '
         Me.ToolStripMenuItem3.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.ToolStripMenuItem3.Name = "ToolStripMenuItem3"
-        Me.ToolStripMenuItem3.Size = New System.Drawing.Size(210, 22)
+        Me.ToolStripMenuItem3.Size = New System.Drawing.Size(204, 22)
         Me.ToolStripMenuItem3.Text = "Export Model (Stl)"
         '
         'ToolStripSeparator1
         '
         Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(207, 6)
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(201, 6)
         '
         'ToolStripMenuItem4
         '
         Me.ToolStripMenuItem4.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.ToolStripMenuItem4.Name = "ToolStripMenuItem4"
-        Me.ToolStripMenuItem4.Size = New System.Drawing.Size(210, 22)
+        Me.ToolStripMenuItem4.Size = New System.Drawing.Size(204, 22)
         Me.ToolStripMenuItem4.Text = "Load Background Image"
         '
         'ChangeBaseColourToolStripMenuItem
         '
         Me.ChangeBaseColourToolStripMenuItem.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.ChangeBaseColourToolStripMenuItem.Name = "ChangeBaseColourToolStripMenuItem"
-        Me.ChangeBaseColourToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
+        Me.ChangeBaseColourToolStripMenuItem.Size = New System.Drawing.Size(204, 22)
         Me.ChangeBaseColourToolStripMenuItem.Text = "Change base colour"
         '
         'ToolStripSeparator3
         '
         Me.ToolStripSeparator3.Name = "ToolStripSeparator3"
-        Me.ToolStripSeparator3.Size = New System.Drawing.Size(207, 6)
+        Me.ToolStripSeparator3.Size = New System.Drawing.Size(201, 6)
         '
         'ToolStripMenuItem6
         '
+        Me.ToolStripMenuItem6.Checked = True
+        Me.ToolStripMenuItem6.CheckState = System.Windows.Forms.CheckState.Checked
         Me.ToolStripMenuItem6.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.ToolStripMenuItem6.Name = "ToolStripMenuItem6"
-        Me.ToolStripMenuItem6.Size = New System.Drawing.Size(210, 22)
+        Me.ToolStripMenuItem6.Size = New System.Drawing.Size(204, 22)
         Me.ToolStripMenuItem6.Text = "Faster wireframes"
         '
         'ToolStripMenuItem5
@@ -1123,7 +1125,7 @@ Partial Class Form1
         Me.ToolStripMenuItem5.CheckOnClick = True
         Me.ToolStripMenuItem5.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.ToolStripMenuItem5.Name = "ToolStripMenuItem5"
-        Me.ToolStripMenuItem5.Size = New System.Drawing.Size(210, 22)
+        Me.ToolStripMenuItem5.Size = New System.Drawing.Size(204, 22)
         Me.ToolStripMenuItem5.Text = "Post Render Alpha blend"
         '
         'ToolStripMenuItem2
@@ -1131,7 +1133,7 @@ Partial Class Form1
         Me.ToolStripMenuItem2.CheckOnClick = True
         Me.ToolStripMenuItem2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.ToolStripMenuItem2.Name = "ToolStripMenuItem2"
-        Me.ToolStripMenuItem2.Size = New System.Drawing.Size(210, 22)
+        Me.ToolStripMenuItem2.Size = New System.Drawing.Size(204, 22)
         Me.ToolStripMenuItem2.Text = "View Z buffer"
         '
         'ToolStripMenuItem7
@@ -1145,20 +1147,20 @@ Partial Class Form1
         'ToolStripSeparator2
         '
         Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
-        Me.ToolStripSeparator2.Size = New System.Drawing.Size(207, 6)
+        Me.ToolStripSeparator2.Size = New System.Drawing.Size(201, 6)
         '
         'SaveSettingsAsDefaultToolStripMenuItem
         '
         Me.SaveSettingsAsDefaultToolStripMenuItem.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.SaveSettingsAsDefaultToolStripMenuItem.Name = "SaveSettingsAsDefaultToolStripMenuItem"
-        Me.SaveSettingsAsDefaultToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
+        Me.SaveSettingsAsDefaultToolStripMenuItem.Size = New System.Drawing.Size(204, 22)
         Me.SaveSettingsAsDefaultToolStripMenuItem.Text = "Save settings as default"
         '
         'ClearDefaultSettingsToolStripMenuItem
         '
         Me.ClearDefaultSettingsToolStripMenuItem.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.ClearDefaultSettingsToolStripMenuItem.Name = "ClearDefaultSettingsToolStripMenuItem"
-        Me.ClearDefaultSettingsToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
+        Me.ClearDefaultSettingsToolStripMenuItem.Size = New System.Drawing.Size(204, 22)
         Me.ClearDefaultSettingsToolStripMenuItem.Text = "Clear custom defaults"
         '
         'FlipToolStripMenuItem1

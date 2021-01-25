@@ -26,8 +26,8 @@ Public Class Form1
     ReadOnly Polys(MAX) As Poly
     ReadOnly Normals(MAX) As Vector3
     Dim Bigarray(10) As Int32
-    Dim Zbuffer(10) As Int32
-    Dim bkg_image(10) As Int32
+  Dim Zbuffer(10) As Double
+  Dim bkg_image(10) As Int32
     Dim size_array As Int32
     Dim modelcenter As New Vector3
     Dim Mscale As Double = 1
@@ -74,10 +74,10 @@ Public Class Form1
                 cont.left += 8
             Next
         End If
-        If IO.File.Exists(CurDir() & "\logo") = True Then
-            Choose(True)
-        Else
-            Choose(False)
+    If IO.File.Exists(CurDir() & "\logo") Then
+      Choose(True)
+    Else
+      Choose(False)
         End If
     End Sub
 
@@ -101,8 +101,8 @@ Public Class Form1
         Panel1.Top = 0
         Panel1.Height = Sheight
         Swidth -= Panel1.Width
-        If P_right = True Then Panel1.Left = Swidth Else Panel1.Left = 0
-        bmp = New Bitmap(Swidth, Sheight, Imaging.PixelFormat.Format32bppRgb)
+    If P_right Then Panel1.Left = Swidth Else Panel1.Left = 0
+    bmp = New Bitmap(Swidth, Sheight, Imaging.PixelFormat.Format32bppRgb)
         Me.Left = 0
         Me.Top = 0
         rec.Width = Swidth
@@ -118,8 +118,8 @@ Public Class Form1
         camdefault = -2200
         camera.Z = camdefault
         picbox.Top = 0
-        If P_right = True Then picbox.Left = 0 Else picbox.Left = Panel1.Width
-        picbox.Width = Swidth
+    If P_right Then Picbox.Left = 0 Else Picbox.Left = Panel1.Width
+    Picbox.Width = Swidth
         picbox.Height = Sheight
         picbox.Cursor = Cursors.Hand
         picbox.WaitOnLoad = False
@@ -148,49 +148,49 @@ Public Class Form1
         Dim tempstr As String
         Dim cont As Object
         AddHandler picbox.MouseDown, AddressOf Form1_MouseDown
-        If IO.File.Exists(CurDir() & "\3dE_settings.cfg") = True Then
-            Dim reader As New StreamReader(CurDir() & "\3dE_settings.cfg")
-            Try
-                For Each cont In Panel1.Controls
-                    If TypeOf cont Is CheckBox Then
-                        tempstr = reader.ReadLine
-                        If tempstr = "False" Then
-                            cont.checked = False
-                        Else
-                            cont.checked = True
-                        End If
-                    End If
-                    If TypeOf cont Is TrackBar Then
-                        tempstr = reader.ReadLine
-                        cont.value = Val(tempstr)
-                    End If
-                Next
-                light.X = CSng(Val(reader.ReadLine()))
-                light.Y = CSng(Val(reader.ReadLine()))
-                light.Z = CSng(Val(reader.ReadLine()))
-                tempstr = reader.ReadLine
-                Lastpath = reader.ReadLine '  writer.WriteLine(Lastpath)
-                Lastpic = reader.ReadLine
-                reader.Close()
-                If tempstr = "False" Then
-                    P_right = False
-                Else
-                    P_right = True
-                End If
-            Catch oops As Exception
-                reader.Close()
-                IO.File.Delete(CurDir() & "\3dE_settings.cfg")
-                MessageBox.Show("The Configuration file was damaged or missing information and has been deleted")
-            End Try
-            lightr = TrackBar3.Value
-            lightg = TrackBar4.Value
-            lightb = TrackBar5.Value
-            light_brightness = -TrackBar6.Value
+    If IO.File.Exists(CurDir() & "\3dE_settings.cfg") Then
+      Dim reader As New StreamReader(CurDir() & "\3dE_settings.cfg")
+      Try
+        For Each cont In Panel1.Controls
+          If TypeOf cont Is CheckBox Then
+            tempstr = reader.ReadLine
+            If tempstr = "False" Then
+              cont.checked = False
+            Else
+              cont.checked = True
+            End If
+          End If
+          If TypeOf cont Is TrackBar Then
+            tempstr = reader.ReadLine
+            cont.value = Val(tempstr)
+          End If
+        Next
+        light.X = CSng(Val(reader.ReadLine()))
+        light.Y = CSng(Val(reader.ReadLine()))
+        light.Z = CSng(Val(reader.ReadLine()))
+        tempstr = reader.ReadLine
+        Lastpath = reader.ReadLine '  writer.WriteLine(Lastpath)
+        Lastpic = reader.ReadLine
+        reader.Close()
+        If tempstr = "False" Then
+          P_right = False
+        Else
+          P_right = True
         End If
-        If CheckBox8.Checked = False Then CheckBox8.ForeColor = Color.Black
+      Catch oops As Exception
+        reader.Close()
+        IO.File.Delete(CurDir() & "\3dE_settings.cfg")
+        MessageBox.Show("The Configuration file was damaged or missing information and has been deleted")
+      End Try
+      lightr = TrackBar3.Value
+      lightg = TrackBar4.Value
+      lightb = TrackBar5.Value
+      light_brightness = -TrackBar6.Value
+    End If
+    If CheckBox8.Checked = False Then CheckBox8.ForeColor = Color.Black
         Label12.Enabled = CheckBox6.Checked
-        If CheckBox10.Checked = True Then CheckBox10.Text = "Shading + Light" Else CheckBox10.Text = "Light"
-        CheckBox11.Checked = False
+    If CheckBox10.Checked Then CheckBox10.Text = "Shading + Light" Else CheckBox10.Text = "Light"
+    CheckBox11.Checked = False
         If IO.Directory.Exists(Lastpath) = False Then Lastpath = "x"
         If IO.Directory.Exists(Lastpic) = False Then Lastpic = "x"
     End Sub
@@ -198,11 +198,11 @@ Public Class Form1
     Public Sub Choose(ByVal logo As Boolean) ' a file to use
         If logo = False Then
             Dim filt As String
-            If LoadAModel = True Then
-                filt = "3D Models|*.obj;*.stl"
-                If Lastpath.Length > 1 Then FileIO.FileSystem.CurrentDirectory = Lastpath
-            Else
-                filt = "Image Files|*.bmp;*.jpg;*.png"
+      If LoadAModel Then
+        filt = "3D Models|*.obj;*.stl"
+        If Lastpath.Length > 1 Then FileIO.FileSystem.CurrentDirectory = Lastpath
+      Else
+        filt = "Image Files|*.bmp;*.jpg;*.png"
                 If Lastpic.Length > 1 Then FileIO.FileSystem.CurrentDirectory = Lastpic
             End If
             Dim import As New OpenFileDialog With {
@@ -215,26 +215,26 @@ Public Class Form1
             .SupportMultiDottedExtensions = True,
             .AutoUpgradeEnabled = True
               }
-            If LoadAModel = True Then
-                import.ShowDialog()
-                filename = import.FileName
-                If filename.Length > 1 Then
-                    Label1.Text = "importing"
-                    If filename.Substring(filename.Length - 1) = "J" Or filename.Substring(filename.Length - 1) = "j" Then
-                        Read_obj(filename)
-                        Label2.Text = "Model" & vbNewLine & import.SafeFileName
-                    Else
-                        Read_STL(filename)
-                        Label2.Text = "Model" & vbNewLine & import.SafeFileName
-                    End If
-                    Label7.Text = "X:" & modelcenter.X.ToString("n0") & " Y:" & modelcenter.Y.ToString("n0") & " Z:" & modelcenter.Z.ToString("n0")
-                Else
-                    Label2.Text = "Model" & vbNewLine & "Nothing Loaded"
-                    Exit Sub
-                End If
-                Lastpath = Mid(filename, 1, filename.Length - import.SafeFileName.Length)
-            Else
-                import.ShowDialog()
+      If LoadAModel Then
+        import.ShowDialog()
+        filename = import.FileName
+        If filename.Length > 1 Then
+          Label1.Text = "importing"
+          If filename.Substring(filename.Length - 1) = "J" Or filename.Substring(filename.Length - 1) = "j" Then
+            Read_obj(filename)
+            Label2.Text = "Model" & vbNewLine & import.SafeFileName
+          Else
+            Read_STL(filename)
+            Label2.Text = "Model" & vbNewLine & import.SafeFileName
+          End If
+          Label7.Text = "X:" & modelcenter.X.ToString("n0") & " Y:" & modelcenter.Y.ToString("n0") & " Z:" & modelcenter.Z.ToString("n0")
+        Else
+          Label2.Text = "Model" & vbNewLine & "Nothing Loaded"
+          Exit Sub
+        End If
+        Lastpath = Mid(filename, 1, filename.Length - import.SafeFileName.Length)
+      Else
+        import.ShowDialog()
                 If import.FileName.Length < 2 Then
                     filename = "xx"
                 Else
@@ -276,9 +276,9 @@ Public Class Form1
                                        Dim camvec As Vector3 = camera
                                        Dim colour As Int32 = 0
                                        Dim norml As Vector3
-                                       'copy triangle vertexes to 3 temp vectors for transforms etc. (original model data is not modified in any way. The image is generated from these copied triangles)
-                                       Dim vec(3) As Vector3
-                                       vec(0) = Verts(Polys(f).vert1)
+                                     'copy triangle vertexes to 3 temp vectors for transforms etc. (original model data is not modified in any way. The image is generated from these copied triangles)
+                                     Dim vec(3) As Vector3
+                                     vec(0) = Verts(Polys(f).vert1)
                                        vec(1) = Verts(Polys(f).vert2)
                                        vec(2) = Verts(Polys(f).vert3)
                                        'rotate the vertexes 
@@ -298,32 +298,38 @@ Public Class Form1
                                        vec(3) = Vector3.Subtract(vec(2), vec(0))
                                        norml = Vector3.Cross(tmp, vec(3))
                                        norml = Vector3.Normalize(norml)
-                                       tmp = norml
-                                       tmp.Z -= camvec.Z
+
+
+                                     If norml <> Vector3.Zero Then
+                                       norml = Vector3.Normalize(norml)
+                                     End If
+
+                                     tmp = norml
+                                     tmp.Z -= camvec.Z
                                        Dim cp As Single = Vector3.Dot(tmp, norml)
-                                       If CheckBox5.Checked = True Then
-                                           If cp > 0 Then Exit Sub 'back face cull
-                                       ElseIf cp >= 0 Then
-                                           norml *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
+                                     If CheckBox5.Checked Then
+                                       If cp >= 0 Then Exit Sub 'back face cull
+                                     ElseIf cp >= 0 Then
+                                       norml *= -1 ' flips normal so the triangle is always faceing the camerea creating a "double sided" polygon
                                        End If
                                        Normals(f) = norml
-                                       If CheckBox6.Checked = True Then
-                                           Dim cam As Int32 = Floor(camvec.Z + 200) 'z clip distance (stops frame rate dropping to silly levels when geomatry starts get to close to the camera )
-                                           For n As Int32 = 0 To 2 '   perspective transform for each vertex(3D > 2D mapping) 
-                                               vec(n).X = camvec.Z * (vec(n).X - camvec.X)
-                                               vec(n).X /= (camvec.Z - vec(n).Z)
-                                               vec(n).X += camvec.X
-                                               vec(n).Y = camvec.Z * (vec(n).Y - camvec.Y)
-                                               vec(n).Y /= (camvec.Z - vec(n).Z)
-                                               vec(n).Y += camvec.Y
-                                               If cam > vec(n).Z = True Then
-                                                   If Abs(vec(n).X) > (Swidth << 1) Or Abs(vec(n).Y) > (Sheight << 1) Then Exit Sub
-                                                   If cam + 2 > (vec(n).Z) Then Exit Sub ' clip z if it comes too close to the camera on the z axis.
-                                               End If
-                                           Next
-                                       End If
-                                       'force Y axis values of the vertexes into an integer values (for correct array locations.)
-                                       For n As Int32 = 0 To 2
+                                     If CheckBox6.Checked Then
+                                       Dim cam As Int32 = Floor(camvec.Z + 200) 'z clip distance (stops frame rate dropping to silly levels when geomatry starts get to close to the camera )
+                                       For n As Int32 = 0 To 2 '   perspective transform for each vertex(3D > 2D mapping) 
+                                         vec(n).X = camvec.Z * (vec(n).X - camvec.X)
+                                         vec(n).X /= (camvec.Z - vec(n).Z)
+                                         vec(n).X += camvec.X
+                                         vec(n).Y = camvec.Z * (vec(n).Y - camvec.Y)
+                                         vec(n).Y /= (camvec.Z - vec(n).Z)
+                                         vec(n).Y += camvec.Y
+                                         If cam > vec(n).Z Then
+                                           If Abs(vec(n).X) > (Swidth << 1) Or Abs(vec(n).Y) > (Sheight << 1) Then Exit Sub
+                                           If cam + 2 > (vec(n).Z) Then Exit Sub ' clip z if it comes too close to the camera on the z axis.
+                                         End If
+                                       Next
+                                     End If
+                                     'force Y axis values of the vertexes into an integer values (for correct array locations.)
+                                     For n As Int32 = 0 To 2
                                            vec(n).Y = Floor(vec(n).Y)
                                        Next
                                        'Vertex_sort by y axis lowest first
@@ -346,72 +352,72 @@ Public Class Form1
                                        If vec(2).Y < 0 OrElse vec(0).Y > Sheight Then Exit Sub
                                        If vec(0).X > Swidth AndAlso vec(1).X > Swidth AndAlso vec(2).X > Swidth Then Exit Sub
                                        If vec(0).X < 0 AndAlso vec(1).X < 0 AndAlso vec(2).X < 0 Then Exit Sub
-                                       'draw the Vertexes
-                                       If CheckBox2.Checked = True Then
-                                           For n As Int32 = 0 To 2
-                                               Dim Draw_vertex As Boolean = True
-                                               If vec(n).X < 0 OrElse vec(n).X + 1 >= Swidth Then Draw_vertex = False
-                                               If vec(n).Y < 0 OrElse vec(n).Y >= Sheight Then Draw_vertex = False
-                                               If Draw_vertex = True Then
-                                                   'add a vertex marker into bigarray & the zbuffer
-                                                   Dim loc As Int32 = Floor(vec(n).X) + (Floor(vec(n).Y) * Swidth) 'pixel location to array position
-                                                   If loc + 1 < Bigarray.Length Then
-                                                       If vec(n).Z < Zbuffer(loc) Then
-                                                           Bigarray(loc) = &HFFFD3C00
-                                                           Zbuffer(loc) = Floor(vec(n).Z) - 2
-                                                       End If
-                                                   End If
-                                               End If
-                                           Next
-                                       End If
-                                       'work out how to shade the image and set colours scheme.
-                                       FillsnCols(f, vec(0), colour)
-                                       'wireframe
-                                       If CheckBox1.Checked = True Then
-                                           Dim fw As Boolean = ToolStripMenuItem6.Checked
-                                           Dim tmpc As Int32 = Not (colour)
-                                           Dim dist As Int32 = Vector3.Distance(vec(0), vec(1))
-                                           If fw = True Then dist >>= 1
-                                           Triangle_wire(vec(0), vec(1), tmpc, dist)
-                                           dist = Vector3.Distance(vec(1), vec(2))
-                                           If fw = True Then dist >>= 1
-                                           Triangle_wire(vec(1), vec(2), tmpc, dist)
-                                           dist = Vector3.Distance(vec(2), vec(0))
-                                           If fw = True Then dist >>= 1
-                                           Triangle_wire(vec(2), vec(0), tmpc, dist)
-                                       End If
-                                       'workout the triangle type and draw. 
-                                       If CheckBox7.Checked = True Then
-                                           If vec(1).Y = vec(2).Y Then
-                                               Flatbottom(vec(0), vec(1), vec(2), colour)
-                                           ElseIf vec(0).Y = vec(1).Y Then
-                                               Flattop(vec(0), vec(1), vec(2), colour)
-                                           Else
-                                               vec(3).Y = (vec(1).Y - vec(0).Y) / (vec(2).Y - vec(0).Y) 'generate new temp vertex to split the triangle into two
-                                               vec(3) = vec(0) + (vec(2) - vec(0)) * vec(3).Y
-                                               vec(3).Y = vec(1).Y
-                                               Flatbottom(vec(0), vec(1), vec(3), colour)
-                                               Flattop(vec(1), vec(3), vec(2), colour) 'generate a  triangle from the bottom 3 vectors'generate a triangle from the top 3 vectors
+                                     'draw the Vertexes
+                                     If CheckBox2.Checked Then
+                                       For n As Int32 = 0 To 2
+                                         Dim Draw_vertex As Boolean = True
+                                         If vec(n).X < 0 OrElse vec(n).X + 1 >= Swidth Then Draw_vertex = False
+                                         If vec(n).Y < 0 OrElse vec(n).Y >= Sheight Then Draw_vertex = False
+                                         If Draw_vertex Then
+                                           'add a vertex marker into bigarray & the zbuffer
+                                           Dim loc As Int32 = Floor(vec(n).X) + (Floor(vec(n).Y) * Swidth) 'pixel location to array position
+                                           If loc + 1 < Bigarray.Length Then
+                                             If vec(n).Z < Zbuffer(loc) Then
+                                               Bigarray(loc) = &HFFFD3C00
+                                               Zbuffer(loc) = Floor(vec(n).Z) - 2
+                                             End If
                                            End If
+                                         End If
+                                       Next
+                                     End If
+                                     'work out how to shade the image and set colours scheme.
+                                     FillsnCols(f, vec(0), colour)
+                                     'wireframe
+                                     If CheckBox1.Checked Then
+                                       Dim fw As Boolean = ToolStripMenuItem6.Checked
+                                       Dim tmpc As Int32 = Not (colour)
+                                       Dim dist As Int32 = Vector3.Distance(vec(0), vec(1))
+                                       If fw Then dist >>= 1
+                                       Triangle_wire(vec(0), vec(1), tmpc, dist)
+                                       dist = Vector3.Distance(vec(1), vec(2))
+                                       If fw Then dist >>= 1
+                                       Triangle_wire(vec(1), vec(2), tmpc, dist)
+                                       dist = Vector3.Distance(vec(2), vec(0))
+                                       If fw Then dist >>= 1
+                                       Triangle_wire(vec(2), vec(0), tmpc, dist)
+                                     End If
+                                     'workout the triangle type and draw. 
+                                     If CheckBox7.Checked Then
+                                       If vec(1).Y = vec(2).Y Then
+                                         Flatbottom(vec(0), vec(1), vec(2), colour)
+                                       ElseIf vec(0).Y = vec(1).Y Then
+                                         Flattop(vec(0), vec(1), vec(2), colour)
+                                       Else
+                                         vec(3).Y = (vec(1).Y - vec(0).Y) / (vec(2).Y - vec(0).Y) 'generate new temp vertex to split the triangle into two
+                                         vec(3) = vec(0) + (vec(2) - vec(0)) * vec(3).Y
+                                         vec(3).Y = vec(1).Y
+                                         Flatbottom(vec(0), vec(1), vec(3), colour)
+                                         Flattop(vec(1), vec(3), vec(2), colour) 'generate a  triangle from the bottom 3 vectors'generate a triangle from the top 3 vectors
                                        End If
+                                     End If
                                    End Sub)
     End Sub
 
     Public Sub FillsnCols(indx As Int32, vec As Vector3, ByRef colour As Int32)
         Dim DrawAline As Boolean = CheckBox1.Checked
         Dim Lit_lines As Boolean = CheckBox4.Checked
-        'make a colour for non light based shading
-        If CheckBox10.Checked = True OrElse Lit_lines = False Then
-            Dim Rcolour As Int32 = Floor(Abs(modelcenter.Z * 0.168 - vec.X) * 0.138) Mod 255
-            Dim Gcolour As Int32 = Floor(Abs(modelcenter.X * 0.159 - vec.Y) * 0.159) Mod 255
-            Dim Bcolour As Int32 = Floor(Abs(modelcenter.Y * 0.141 - vec.Z) * 0.161) Mod 255
-            colour = AlphaMask + (Rcolour << 16) + (Gcolour << 8) + Bcolour
-        End If
-        'Pick a colour scheme 
-        If DrawAline = True AndAlso Lit_lines = False Then
-            colour = Obj_base_colour
-        Else
-            Lighting(Normals(indx), colour) 'lighting
+    'make a colour for non light based shading
+    If CheckBox10.Checked OrElse Lit_lines = False Then
+      Dim Rcolour As Int32 = Floor(Abs(modelcenter.Z * 0.168 - vec.X) * 0.138) Mod 255
+      Dim Gcolour As Int32 = Floor(Abs(modelcenter.X * 0.159 - vec.Y) * 0.159) Mod 255
+      Dim Bcolour As Int32 = Floor(Abs(modelcenter.Y * 0.141 - vec.Z) * 0.161) Mod 255
+      colour = AlphaMask + (Rcolour << 16) + (Gcolour << 8) + Bcolour
+    End If
+    'Pick a colour scheme 
+    If DrawAline AndAlso Lit_lines = False Then
+      colour = Obj_base_colour
+    Else
+      Lighting(Normals(indx), colour) 'lighting
         End If
         If DrawAline = False AndAlso Lit_lines = False Then  '  non-lit polys
             Dim test As Int32 = indx >> 1 << 1
@@ -427,8 +433,8 @@ Public Class Form1
            Dim line As Vector3
         Dim loc As Int32
         For f As Int32 = 1 To Floor(dist)
-            line = Vector3.Lerp(vec0, vec1, f / dist)
-            loc = line.X + (Floor(line.Y) * Swidth)
+      line = Vector3.Lerp(vec0, vec1,  f / dist)
+      loc = line.X + (Floor(line.Y) * Swidth)
             If line.X >= 0 AndAlso line.X + 1 < Swidth Then
                 If loc < size_array AndAlso loc >= 0 Then
                     If line.Z <= Zbuffer(loc) Then
@@ -475,32 +481,31 @@ Public Class Form1
     l2.X = Floor(l2.X)
     Dim zslope As Double = (l1.Z - l2.Z) / (l1.X - l2.X)
     Dim zpos As Double = l1.Z
-
     Dim loc As Int32
     For n As Int32 = l1.X + 1 To l2.X
       If n >= 0 AndAlso n < Swidth Then
         loc = n + (l2.Y * Swidth)
         If loc < size_array AndAlso loc >= 0 Then
           If zpos < Zbuffer(loc) Then
-            If CheckBox12.Checked = True AndAlso pre_post = False Then  'alpha blending (uses the zbuffer to adjust polygon transparency - dirty hack)
-              Dim bl As Int32 = blendamount
-              If zpos < Zbuffer(loc) Then
-                bl -= 16
-                Zbuffer(loc) = zpos
-              Else
-                bl = 255 - (blendamount >> 3)
+            If CheckBox12.Checked AndAlso pre_post = False Then  'alpha blending (uses the zbuffer to adjust polygon transparency - dirty hack)
+              If zpos <= Zbuffer(loc) Then
+                Dim rb As Int32 = colour And &HFF00FF
+                Dim g As Int32 = colour And &HFF00
+                rb += ((Bigarray(loc) And &HFF00FF) - rb) * blendamount >> 8
+                g += ((Bigarray(loc) And &HFF00) - g) * blendamount >> 8
+                Bigarray(loc) = (rb And &HFF00FF) Or (g And &HFF00)
               End If
-              Dim rb As Int32 = colour And &HFF00FF
-              Dim g As Int32 = colour And &HFF00
-              rb += ((Bigarray(loc) And &HFF00FF) - rb) * (bl) >> 8
-              g += ((Bigarray(loc) And &HFF00) - g) * (bl) >> 8
-              Bigarray(loc) = (rb And &HFF00FF) Or (g And &HFF00)
+              Dim rb1 As Int32 = colour And &HFF00FF
+              Dim g1 As Int32 = colour And &HFF00
+              rb1 += ((Bigarray(loc) And &HFF00FF) - rb1) * blendamount >> 8
+              g1 += ((Bigarray(loc) And &HFF00) - g1) * blendamount >> 8
+              Bigarray(loc) = (rb1 And &HFF00FF) Or (g1 And &HFF00)
             Else
               Bigarray(loc) = colour
               Zbuffer(loc) = zpos
             End If
           End If
-          End If
+        End If
       End If
       zpos += zslope
     Next n
@@ -511,9 +516,9 @@ Public Class Form1
             Parallel.For(0, Zbuffer.Length - 1, Sub(f As Int32)
                                                     If Zbuffer(f) < &H6F000000 Then
                                                         Dim bkg As Int32
-                                                        If CheckBox11.Checked = True Then bkg = bkg_image(f) Else bkg = &HFF000000
-                                                        'fast full alpha blend.
-                                                        Dim rb As Int32 = Bigarray(f) And &HFF00FF
+                                                    If CheckBox11.Checked Then bkg = bkg_image(f) Else bkg = &HFF000000
+                                                    'fast full alpha blend.
+                                                    Dim rb As Int32 = Bigarray(f) And &HFF00FF
                                                         Dim g As Int32 = Bigarray(f) And &HFF00
                                                         rb += ((bkg And &HFF00FF) - rb) * blendamount >> 8
                                                         g += ((bkg And &HFF00) - g) * blendamount >> 8
@@ -527,12 +532,12 @@ Public Class Form1
         Dim rdot As Int32
         Dim gdot As Int32
         Dim bdot As Int32
-        If CheckBox10.Checked = True Then
-            rdot = (colour And RedMask) >> 16
-            gdot = (colour And greenMask) >> 8
-            bdot = (colour And blueMask)
-        Else
-            rdot = (Obj_base_colour And RedMask) >> 16
+    If CheckBox10.Checked Then
+      rdot = (colour And RedMask) >> 16
+      gdot = (colour And greenMask) >> 8
+      bdot = (colour And blueMask)
+    Else
+      rdot = (Obj_base_colour And RedMask) >> 16
             gdot = (Obj_base_colour And greenMask) >> 8
             bdot = (Obj_base_colour And blueMask)
         End If
@@ -600,22 +605,22 @@ Public Class Form1
         If vertcount > 2 Then
             Time_stuff.Start()
             Clear_array()
-            If mvelight = True Then
-                light.X = (MousePosition.X - screencenter.X)
-                light.Y = (MousePosition.Y - screencenter.Y)
-            End If
-            If CheckBox3.Checked = True Then Drawgrid()
-            If CheckBox7.Checked = True OrElse CheckBox1.Checked = True OrElse CheckBox2.Checked = True Then Nu_rasterPoly()
-            If Bigarray.Length = size_array Then
-                If ToolStripMenuItem2.Checked = True Then
-                    Parallel.For(0, Zbuffer.Length - 1, Sub(f As Int32) 'overwrite bigarray with a visualisation of the zbuffer
-                                                            Dim zb As Int32 = 127 + Floor((Zbuffer(f) * 0.125)) Mod 256
-                                                            If Zbuffer(f) = &H6F000000 Then zb = &HFF000000
-                                                            Bigarray(f) = &H6F000000 + ((zb << 16) + (zb << 8) + zb)
-                                                        End Sub)
-                End If
-                If CheckBox12.Checked = True AndAlso pre_post = True Then AlphaBlend()
-                Dim bmpdata As Imaging.BitmapData = bmp.LockBits(rec, Drawing.Imaging.ImageLockMode.WriteOnly, bmp.PixelFormat)
+      If mvelight Then
+        light.X = (MousePosition.X - screencenter.X)
+        light.Y = (MousePosition.Y - screencenter.Y)
+      End If
+      If CheckBox3.Checked Then Drawgrid()
+      If CheckBox7.Checked OrElse CheckBox1.Checked OrElse CheckBox2.Checked Then Nu_rasterPoly()
+      If Bigarray.Length = size_array Then
+        If ToolStripMenuItem2.Checked Then
+          Parallel.For(0, Zbuffer.Length - 1, Sub(f As Int32) 'overwrite bigarray with a visualisation of the zbuffer
+                                                Dim zb As Int32 = 127 + Floor((Zbuffer(f) * 0.125)) Mod 256
+                                                If Zbuffer(f) = &H6F000000 Then zb = &HFF000000
+                                                Bigarray(f) = &H6F000000 + ((zb << 16) + (zb << 8) + zb)
+                                              End Sub)
+        End If
+        If CheckBox12.Checked AndAlso pre_post Then AlphaBlend()
+        Dim bmpdata As Imaging.BitmapData = bmp.LockBits(rec, Drawing.Imaging.ImageLockMode.WriteOnly, bmp.PixelFormat)
                 Dim ptr As IntPtr = bmpdata.Scan0
                 System.Runtime.InteropServices.Marshal.Copy(Bigarray, 0, ptr, size_array)
                 bmp.UnlockBits(bmpdata)
@@ -623,19 +628,19 @@ Public Class Form1
             End If
             Time_stuff.Stop()
             Label3.Text = Time_stuff.Elapsed.TotalMilliseconds.ToString("f2") & " ms " & "(" & (1000 / Time_stuff.Elapsed.TotalMilliseconds).ToString("f2") & " fps)"
-            If CheckBox4.Checked = True Then
-                Label19.Text = "X:" & light.X.ToString("n0") & vbNewLine & "Y:" & light.Y.ToString("n0") & vbNewLine & "Z:" & -light.Z
-            Else
-                Label19.Text = vbNullString
+      If CheckBox4.Checked Then
+        Label19.Text = "X:" & light.X.ToString("n0") & vbNewLine & "Y:" & light.Y.ToString("n0") & vbNewLine & "Z:" & -light.Z
+      Else
+        Label19.Text = vbNullString
             End If
             Time_stuff.Reset()
         End If
     End Sub
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        If ToolStripMenuItem7.Checked = True Then
-            Label33.Text = "Cpu:" & Cpu_Use.NextValue.ToString("n2") & "%" & " using" & proc_count & " logical cores"
-        Else
-            Label33.Text = vbNullString
+    If ToolStripMenuItem7.Checked Then
+      Label33.Text = "Cpu:" & Cpu_Use.NextValue.ToString("n2") & "%" & " using" & proc_count & " logical cores"
+    Else
+      Label33.Text = vbNullString
         End If
     End Sub
     Private Sub Magnify(ByVal zoom As Single)
@@ -1036,11 +1041,11 @@ Public Class Form1
 
 
     Private Sub FlipToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles FlipToolStripMenuItem1.Click
-        If P_right = True Then
-            Panel1.Left = 0
-            Picbox.Left = Panel1.Width
-        Else
-            Picbox.Left = 0
+    If P_right Then
+      Panel1.Left = 0
+      Picbox.Left = Panel1.Width
+    Else
+      Picbox.Left = 0
             Panel1.Left = Picbox.Width
         End If
         P_right = Not P_right
@@ -1059,18 +1064,17 @@ Public Class Form1
         End
     End Sub 'exit
 
-    Private Sub OpenAModelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenAModelToolStripMenuItem.Click
-        If spinx = True Then SpinnerX.PerformClick()
-        If spiny = True Then SpinnerY.PerformClick()
-        If spinz = True Then SpinnerZ.PerformClick()
-        If tumble = True Then Tumbler.PerformClick()
-        Array.Clear(Verts, 0, Verts.Length)
-        Nu_config() 'adjust for the display size
-        Choose(False) ' select and load an object
+  Private Sub OpenAModelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenAModelToolStripMenuItem.Click
+    If spinx Then SpinnerX.PerformClick()
+    If spiny Then SpinnerY.PerformClick()
+    If spinz Then SpinnerZ.PerformClick()
+    If tumble Then Tumbler.PerformClick()
+    Array.Clear(Verts, 0, Verts.Length)
+    Nu_config() 'adjust for the display size
+    Choose(False) ' select and load an object
+  End Sub
 
-    End Sub
-
-    Private Sub ExportModelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExportModelToolStripMenuItem.Click
+  Private Sub ExportModelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExportModelToolStripMenuItem.Click
         Write_obj()
     End Sub
 
@@ -1109,11 +1113,11 @@ Public Class Form1
     End Sub
 
     Private Sub ClearDefaultSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ClearDefaultSettingsToolStripMenuItem.Click
-        If IO.File.Exists(CurDir() & "\3dE_settings.cfg") = True Then
-            IO.File.Delete(CurDir() & "\3dE_settings.cfg")
-            MessageBox.Show("Custom defaults removed.")
-        End If
-    End Sub
+    If IO.File.Exists(CurDir() & "\3dE_settings.cfg") Then
+      IO.File.Delete(CurDir() & "\3dE_settings.cfg")
+      MessageBox.Show("Custom defaults removed.")
+    End If
+  End Sub
 
     Private Sub ChangeBaseColourToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ChangeBaseColourToolStripMenuItem.Click
         ColorDialog1.AnyColor = True
@@ -1152,23 +1156,23 @@ Public Class Form1
 
     Private Sub CheckBox8_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox8.CheckedChanged
         Picbox.Focus()
-        If CheckBox8.Checked = True Then
-            CheckBox8.ForeColor = Color.Lavender
-            mvelight = True
-        Else
-            CheckBox8.ForeColor = Color.Black
+    If CheckBox8.Checked Then
+      CheckBox8.ForeColor = Color.Lavender
+      mvelight = True
+    Else
+      CheckBox8.ForeColor = Color.Black
             mvelight = False
         End If
-        If CheckBox4.Checked = True Then Makebmp()
-        Do Until CheckBox8.Checked = False
+    If CheckBox4.Checked Then Makebmp()
+    Do Until CheckBox8.Checked = False
             Makebmp()
             Application.DoEvents()
         Loop
     End Sub
 
     Private Sub CheckBox10_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox10.CheckedChanged
-        If CheckBox10.Checked = True Then CheckBox10.Text = "Shading && Light" Else CheckBox10.Text = "Light"
-        Makebmp()
+    If CheckBox10.Checked Then CheckBox10.Text = "Shading && Light" Else CheckBox10.Text = "Light"
+    Makebmp()
     End Sub
 
     Private Sub CheckBox11_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox11.CheckedChanged
@@ -1224,8 +1228,8 @@ Public Class Form1
     Private Sub TrackBar10_Scroll(sender As Object, e As EventArgs) Handles TrackBar10.Scroll
         If TrackBar10.Value = 0 Then TrackBar10.Value = 360
         If TrackBar10.Value = 361 Then TrackBar10.Value = 1
-        If CheckBox8.Checked = True Then CheckBox8.Checked = False
-        ax = TrackBar10.Value - 1
+    If CheckBox8.Checked Then CheckBox8.Checked = False
+    ax = TrackBar10.Value - 1
         Label29.Text = ax.ToString
         ax = -ax / 180 * PI
         Makebmp()
@@ -1236,14 +1240,14 @@ Public Class Form1
         ay = TrackBar11.Value - 1
         Label30.Text = ay.ToString
         ay = ay / 180 * PI
-        If CheckBox8.Checked = True Then CheckBox8.Checked = False
-        Makebmp()
+    If CheckBox8.Checked Then CheckBox8.Checked = False
+    Makebmp()
     End Sub
     Private Sub TrackBar12_Scroll(sender As Object, e As EventArgs) Handles TrackBar12.Scroll
         If TrackBar12.Value = 0 Then TrackBar12.Value = 360
         If TrackBar12.Value = 361 Then TrackBar12.Value = 1
-        If CheckBox8.Checked = True Then CheckBox8.Checked = False
-        az = TrackBar12.Value - 1
+    If CheckBox8.Checked Then CheckBox8.Checked = False
+    az = TrackBar12.Value - 1
         Label31.Text = az.ToString
         az = az / 180 * PI
         Makebmp()
@@ -1279,12 +1283,12 @@ Public Class Form1
     Private Sub Button3_Click_1(sender As Object, e As EventArgs) Handles Button3.Click
         GroupBox1.Visible = Not GroupBox1.Visible
         GroupBox2.Visible = Not GroupBox1.Visible
-        If GroupBox2.Visible = True Then
-            TextBox1.Text = modelcenter.X.ToString
-            TextBox2.Text = modelcenter.Y.ToString
-            TextBox3.Text = modelcenter.Z.ToString
-        End If
-        Label7.BringToFront()
+    If GroupBox2.Visible Then
+      TextBox1.Text = modelcenter.X.ToString
+      TextBox2.Text = modelcenter.Y.ToString
+      TextBox3.Text = modelcenter.Z.ToString
+    End If
+    Label7.BringToFront()
         Button3.BringToFront()
     End Sub
 
@@ -1348,69 +1352,69 @@ Public Class Form1
 
     Private Sub Tumbler_Click(sender As Object, e As EventArgs) Handles Tumbler.Click
         tumble = Not tumble
-        If tumble = True Then Tumbler.Text = "Stop" Else Tumbler.Text = "Tumble"
-        spinspeed = TrackBar2.Value * 0.5
-        If spiny = True Then tumble = Not tumble : SpinnerY.PerformClick() : tumble = Not tumble
-        If spinz = True Then tumble = Not tumble : SpinnerZ.PerformClick() : tumble = Not tumble
-        If spinx = True Then tumble = Not tumble : SpinnerX.PerformClick() : tumble = Not tumble
-        Dim angx As Single = ax
-        Dim angy As Single = ay
-        Dim angz As Single = az
-        Dim randomx, randomy, randomz As Double
-        Dim countt As Int32 = 0
-        Do
-            If countt = 0 Then
-                randomx = rng.Next(50, 126) * 0.01
-                randomy = rng.Next(50, 126) * 0.01
-                randomz = rng.Next(50, 126) * 0.01
-                Select Case rng.Next(2)
-                    Case Is = 0
-                        randomx *= -1
-                    Case Is = 1
-                        randomy *= -1
-                    Case Is = 2
-                        randomz *= -1
-                End Select
-            End If
+    If tumble Then Tumbler.Text = "Stop" Else Tumbler.Text = "Tumble"
+    spinspeed = TrackBar2.Value * 0.5
+    If spiny Then tumble = Not tumble : SpinnerY.PerformClick() : tumble = Not tumble
+    If spinz Then tumble = Not tumble : SpinnerZ.PerformClick() : tumble = Not tumble
+    If spinx Then tumble = Not tumble : SpinnerX.PerformClick() : tumble = Not tumble
+    Dim angx As Single = ax
+    Dim angy As Single = ay
+    Dim angz As Single = az
+    Dim randomx, randomy, randomz As Double
+    Dim countt As Int32 = 0
+    Do
+      If countt = 0 Then
+        randomx = rng.Next(50, 126) * 0.01
+        randomy = rng.Next(50, 126) * 0.01
+        randomz = rng.Next(50, 126) * 0.01
+        Select Case rng.Next(2)
+          Case Is = 0
+            randomx *= -1
+          Case Is = 1
+            randomy *= -1
+          Case Is = 2
+            randomz *= -1
+        End Select
+      End If
       '     If CheckBox8.Checked = False Then
       ax += (spinspeed * randomx) / 180 * PI
       ay += (spinspeed * randomy) / 180 * PI
       az += (spinspeed * randomz) / 180 * PI
       '   End If
       Makebmp()
-            Application.DoEvents()
-            If tumble = False Then
-                Exit Do
-            End If
-            If CheckBox9.Checked = True Then
-                spinspeed = TrackBar2.Value >> 1
-            Else
-                spinspeed = -TrackBar2.Value >> 1
-            End If
-            If spinspeed = 0 Then spinspeed = 0.5
-            If CheckBox8.Checked = False Then countt = (countt + 1) Mod 400
-        Loop
-        ax = angx
-        ay = angy
-        az = angz
-        Makebmp()
+      Application.DoEvents()
+      If tumble = False Then
+        Exit Do
+      End If
+      If CheckBox9.Checked Then
+        spinspeed = TrackBar2.Value >> 1
+      Else
+        spinspeed = -TrackBar2.Value >> 1
+      End If
+      If spinspeed = 0 Then spinspeed = 0.5
+      If CheckBox8.Checked = False Then countt = (countt + 1) Mod 400
+    Loop
+    ax = angx
+    ay = angy
+    az = angz
+    Makebmp()
     End Sub
     Private Sub Button22_Click(sender As Object, e As EventArgs) Handles SpinnerX.Click 'spin demo
         spinx = Not spinx
-        If spinx = True Then SpinnerX.Text = "Stop" Else SpinnerX.Text = "Spin (P)"
-        If spiny = True Then spinx = Not spinx : SpinnerY.PerformClick() : spinx = Not spinx
-        If spinz = True Then spinx = Not spinx : SpinnerZ.PerformClick() : spinx = Not spinx
-        If tumble = True Then spinx = Not spinx : Tumbler.PerformClick() : spinx = Not spinx
-        spinspeed = TrackBar2.Value * 0.5
+    If spinx Then SpinnerX.Text = "Stop" Else SpinnerX.Text = "Spin (P)"
+    If spiny Then spinx = Not spinx : SpinnerY.PerformClick() : spinx = Not spinx
+    If spinz Then spinx = Not spinx : SpinnerZ.PerformClick() : spinx = Not spinx
+    If tumble Then spinx = Not spinx : Tumbler.PerformClick() : spinx = Not spinx
+    spinspeed = TrackBar2.Value * 0.5
         Dim angx As Single = ax
         Do Until spinx = False
             If CheckBox8.Checked = False Then ax += spinspeed / 180 * PI
             Makebmp()
             Application.DoEvents()
-            If CheckBox9.Checked = True Then
-                spinspeed = TrackBar2.Value >> 1
-            Else
-                spinspeed = -TrackBar2.Value >> 1
+      If CheckBox9.Checked Then
+        spinspeed = TrackBar2.Value >> 1
+      Else
+        spinspeed = -TrackBar2.Value >> 1
             End If
             If spinspeed = 0 Then spinspeed = 0.5
         Loop
@@ -1419,18 +1423,18 @@ Public Class Form1
     End Sub
     Private Sub Button23_Click(sender As Object, e As EventArgs) Handles SpinnerY.Click 'spin demo
         spiny = Not spiny
-        If spiny = True Then SpinnerY.Text = "Stop" Else SpinnerY.Text = "Spin (Y)"
-        If spinx = True Then spiny = Not spiny : SpinnerX.PerformClick() : spiny = Not spiny
-        If spinz = True Then spiny = Not spiny : SpinnerZ.PerformClick() : spiny = Not spiny
-        If tumble = True Then spiny = Not spiny : Tumbler.PerformClick() : spiny = Not spiny
-        Dim angy As Single = ay
+    If spiny Then SpinnerY.Text = "Stop" Else SpinnerY.Text = "Spin (Y)"
+    If spinx Then spiny = Not spiny : SpinnerX.PerformClick() : spiny = Not spiny
+    If spinz Then spiny = Not spiny : SpinnerZ.PerformClick() : spiny = Not spiny
+    If tumble Then spiny = Not spiny : Tumbler.PerformClick() : spiny = Not spiny
+    Dim angy As Single = ay
         Do Until spiny = False
             If CheckBox8.Checked = False Then ay += spinspeed / 180 * PI
             Makebmp()
-            If CheckBox9.Checked = True Then
-                spinspeed = TrackBar2.Value >> 1
-            Else
-                spinspeed = -TrackBar2.Value >> 1
+      If CheckBox9.Checked Then
+        spinspeed = TrackBar2.Value >> 1
+      Else
+        spinspeed = -TrackBar2.Value >> 1
             End If
             If spinspeed = 0 Then spinspeed = 0.5
             Application.DoEvents()
@@ -1440,20 +1444,20 @@ Public Class Form1
     End Sub
     Private Sub Button24_Click(sender As Object, e As EventArgs) Handles SpinnerZ.Click 'spin demo
         spinz = Not spinz
-        If spinz = True Then SpinnerZ.Text = "Stop" Else SpinnerZ.Text = "Spin (R)"
-        If spinx = True Then spinz = Not spinz : SpinnerX.PerformClick() : spinz = Not spinz
-        If spiny = True Then spinz = Not spinz : SpinnerY.PerformClick() : spinz = Not spinz
-        If tumble = True Then spinz = Not spinz : Tumbler.PerformClick() : spinz = Not spinz
-        spinspeed = TrackBar2.Value >> 1
+    If spinz Then SpinnerZ.Text = "Stop" Else SpinnerZ.Text = "Spin (R)"
+    If spinx Then spinz = Not spinz : SpinnerX.PerformClick() : spinz = Not spinz
+    If spiny Then spinz = Not spinz : SpinnerY.PerformClick() : spinz = Not spinz
+    If tumble Then spinz = Not spinz : Tumbler.PerformClick() : spinz = Not spinz
+    spinspeed = TrackBar2.Value >> 1
         Dim angz As Single = az
         Do Until spinz = False
             If CheckBox8.Checked = False Then az += spinspeed / 180 * PI
             Makebmp()
             Application.DoEvents()
-            If CheckBox9.Checked = True Then
-                spinspeed = TrackBar2.Value >> 1
-            Else
-                spinspeed = -TrackBar2.Value >> 1
+      If CheckBox9.Checked Then
+        spinspeed = TrackBar2.Value >> 1
+      Else
+        spinspeed = -TrackBar2.Value >> 1
             End If
             If spinspeed = 0 Then spinspeed = 0.5
         Loop
@@ -1514,17 +1518,17 @@ Public Class Form1
         If e.Button = Windows.Forms.MouseButtons.Left Then
             light.X = -(screencenter.X - MousePosition.X)
             light.Y = -(screencenter.Y - MousePosition.Y)
-            If CheckBox8.Checked = True Then CheckBox8.Checked = False
-            'If mvelight = True Then Label23.ForeColor = Color.Yellow Else Label23.ForeColor = Color.White
-            If CheckBox4.Checked = True Then Makebmp()
-        End If
+      If CheckBox8.Checked Then CheckBox8.Checked = False
+      'If mvelight  Then Label23.ForeColor = Color.Yellow Else Label23.ForeColor = Color.White
+      If CheckBox4.Checked Then Makebmp()
+    End If
         If e.Button = Windows.Forms.MouseButtons.Right Then
             light.X = 0
             light.Y = 0
             light.Z = -8
             TrackBar7.Value = 8
-            If CheckBox4.Checked = True Then Makebmp()
-        End If
+      If CheckBox4.Checked Then Makebmp()
+    End If
     End Sub
 
     Private Sub Form1_MouseWheel(sender As Object, e As MouseEventArgs) Handles Me.MouseWheel
@@ -1542,10 +1546,10 @@ Public Class Form1
         Dim x, y As Int32
         x = MousePosition.X - Picbox.Left
         y = MousePosition.Y
-        If CheckBox8.Checked = True Then
-            Label23.ForeColor = Color.Yellow
-        Else
-            Label23.ForeColor = Color.White
+    If CheckBox8.Checked Then
+      Label23.ForeColor = Color.Yellow
+    Else
+      Label23.ForeColor = Color.White
         End If
         Label23.Text = "x " & x & " (" & x - Floor(screencenter.X) & ") , " & "y " & MousePosition.Y & " (" & MousePosition.Y - screencenter.Y & ")"
     End Sub

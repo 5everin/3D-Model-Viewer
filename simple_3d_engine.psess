@@ -2,8 +2,8 @@
 <VSPerformanceSession Version="1.00">
   <Options>
     <Solution>simple_3d_engine.sln</Solution>
-    <CollectionMethod>Concurrency</CollectionMethod>
-    <AllocationMethod>None</AllocationMethod>
+    <CollectionMethod>Sampling</CollectionMethod>
+    <AllocationMethod>Allocation</AllocationMethod>
     <AddReport>true</AddReport>
     <ResourceBasedAnalysisSelected>true</ResourceBasedAnalysisSelected>
     <UniqueReport>Timestamp</UniqueReport>
@@ -36,7 +36,7 @@
   </PostinstrumentEvent>
   <Binaries>
     <ProjBinary>
-      <Path>simple_3d_engine\obj\Debug\simple_3d_engine.exe</Path>
+      <Path>obj\Release\simple_3d_engine.exe</Path>
       <ArgumentTimestamp>01/01/0001 00:00:00</ArgumentTimestamp>
       <Instrument>true</Instrument>
       <Sample>true</Sample>
@@ -48,8 +48,8 @@
       <LaunchProject>true</LaunchProject>
       <OverrideProjectSettings>false</OverrideProjectSettings>
       <LaunchMethod>Executable</LaunchMethod>
-      <ExecutablePath>simple_3d_engine\bin\Debug\simple_3d_engine.exe</ExecutablePath>
-      <StartupDirectory>simple_3d_engine\bin\Debug\</StartupDirectory>
+      <ExecutablePath>bin\Release\simple_3d_engine.exe</ExecutablePath>
+      <StartupDirectory>bin\Release\</StartupDirectory>
       <Arguments>
       </Arguments>
       <NetAppHost>IIS</NetAppHost>
@@ -62,14 +62,14 @@
       <PostinstrumentEvent>
         <InstrEventExclude>false</InstrEventExclude>
       </PostinstrumentEvent>
-      <ProjRef>{83669A58-1EC9-4792-A299-B8E8AACE3906}|simple_3d_engine\simple_3d_engine.vbproj</ProjRef>
-      <ProjPath>simple_3d_engine\simple_3d_engine.vbproj</ProjPath>
+      <ProjRef>{83669A58-1EC9-4792-A299-B8E8AACE3906}|simple_3d_engine.vbproj</ProjRef>
+      <ProjPath>simple_3d_engine.vbproj</ProjPath>
       <ProjName>simple_3d_engine</ProjName>
     </ProjBinary>
   </Binaries>
   <Launches>
     <ProjBinary>
-      <Path>:PB:{83669A58-1EC9-4792-A299-B8E8AACE3906}|simple_3d_engine\simple_3d_engine.vbproj</Path>
+      <Path>:PB:{83669A58-1EC9-4792-A299-B8E8AACE3906}|simple_3d_engine.vbproj</Path>
     </ProjBinary>
   </Launches>
 </VSPerformanceSession>

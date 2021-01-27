@@ -486,21 +486,14 @@ Public Class Form1
       If n >= 0 AndAlso n < Swidth Then
         loc = n + (l2.Y * Swidth)
         If loc < size_array AndAlso loc >= 0 Then
-          If zpos < Zbuffer(loc) Then
-            If CheckBox12.Checked AndAlso pre_post = False Then  'alpha blending (uses the zbuffer to adjust polygon transparency - dirty hack)
-              If zpos <= Zbuffer(loc) Then
-                Dim rb As Int32 = colour And &HFF00FF
-                Dim g As Int32 = colour And &HFF00
-                rb += ((Bigarray(loc) And &HFF00FF) - rb) * blendamount >> 8
-                g += ((Bigarray(loc) And &HFF00) - g) * blendamount >> 8
-                Bigarray(loc) = (rb And &HFF00FF) Or (g And &HFF00)
-              End If
-              Dim rb1 As Int32 = colour And &HFF00FF
-              Dim g1 As Int32 = colour And &HFF00
-              rb1 += ((Bigarray(loc) And &HFF00FF) - rb1) * blendamount >> 8
-              g1 += ((Bigarray(loc) And &HFF00) - g1) * blendamount >> 8
-              Bigarray(loc) = (rb1 And &HFF00FF) Or (g1 And &HFF00)
-            Else
+          If CheckBox12.Checked AndAlso pre_post = False Then  'alpha blending (uses the zbuffer to adjust polygon transparency - dirty hack)
+            Dim rb1 As Int32 = colour And &HFF00FF
+            Dim g1 As Int32 = colour And &HFF00
+            rb1 += ((Bigarray(loc) And &HFF00FF) - rb1) * blendamount >> 8
+            g1 += ((Bigarray(loc) And &HFF00) - g1) * blendamount >> 8
+            Bigarray(loc) = (127 << 24) + ((rb1 And &HFF00FF) Or (g1 And &HFF00))
+          Else
+            If zpos <= Zbuffer(loc) Then
               Bigarray(loc) = colour
               Zbuffer(loc) = zpos
             End If

@@ -885,8 +885,8 @@ Partial Class Form1
         Me.TrackBar1.AutoSize = False
         Me.TrackBar1.LargeChange = 1
         Me.TrackBar1.Location = New System.Drawing.Point(141, 166)
-        Me.TrackBar1.Maximum = 245
-        Me.TrackBar1.Minimum = 129
+        Me.TrackBar1.Maximum = 250
+        Me.TrackBar1.Minimum = 148
         Me.TrackBar1.Name = "TrackBar1"
         Me.TrackBar1.Orientation = System.Windows.Forms.Orientation.Vertical
         Me.TrackBar1.RightToLeft = System.Windows.Forms.RightToLeft.Yes
@@ -894,7 +894,7 @@ Partial Class Form1
         Me.TrackBar1.TabIndex = 15
         Me.TrackBar1.TickFrequency = 5
         Me.TrackBar1.TickStyle = System.Windows.Forms.TickStyle.None
-        Me.TrackBar1.Value = 180
+        Me.TrackBar1.Value = 200
         '
         'Tumbler
         '

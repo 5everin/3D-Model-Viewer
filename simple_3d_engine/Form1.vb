@@ -429,22 +429,30 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Triangle_wire(vec0 As Vector3, vec1 As Vector3, colour As Int32, dist As Int32)
-           Dim line As Vector3
-        Dim loc As Int32
-        For f As Int32 = 1 To Floor(dist)
-      line = Vector3.Lerp(vec0, vec1,  f / dist)
+  Private Sub Triangle_wire(vec0 As Vector3, vec1 As Vector3, colour As Int32, dist As Int32)
+    Dim line As Vector3
+    Dim loc As Int32
+    For f As Int32 = 1 To Floor(dist)
+      line = Vector3.Lerp(vec0, vec1, f / dist)
       loc = line.X + (Floor(line.Y) * Swidth)
-            If line.X >= 0 AndAlso line.X + 1 < Swidth Then
-                If loc < size_array AndAlso loc >= 0 Then
-                    If line.Z <= Zbuffer(loc) Then
-                        Bigarray(loc) = colour
-            Zbuffer(loc) = line.Z - 2
-          End If
-                End If
+      If line.X >= 0 AndAlso line.X + 1 < Swidth Then
+        If loc < size_array AndAlso loc >= 0 Then
+          If CheckBox12.Checked AndAlso pre_post = False Then  'alpha blending (uses the zbuffer to adjust polygon transparency - dirty hack)
+            Dim rb1 As Int32 = colour And &HFF00FF
+            Dim g1 As Int32 = colour And &HFF00
+            rb1 += ((Bigarray(loc) And &HFF00FF) - rb1) * blendamount >> 8
+            g1 += ((Bigarray(loc) And &HFF00) - g1) * blendamount >> 8
+            Bigarray(loc) = (127 << 24) + ((rb1 And &HFF00FF) Or (g1 And &HFF00))
+          Else
+            If line.Z <= Zbuffer(loc) Then
+              Bigarray(loc) = colour
+              Zbuffer(loc) = line.Z - 2
             End If
-        Next
-    End Sub
+          End If
+        End If
+      End If
+    Next
+  End Sub
 
   Private Sub Flatbottom(ByRef vec0 As Vector3, ByRef vec1 As Vector3, ByRef vec2 As Vector3, ByRef colour As Int32)
     'this traces the two lines down the sides of a flat bottomed triangle in paralell generating x,y,z coords for the zbuffer and the two end points of the vertical line connecting them...

@@ -1,7 +1,7 @@
 # 3D-Model-Viewer
 A software renderer written in vb.net 
 
-Requires .net 4.6 or newer 
+Requires .net 4.6 or newer. 
 May require the adding of a reference to System.Numerics
 
 This is not an example of great code or coding technique I'm afraid. (I'm just a hobbyist)
@@ -31,3 +31,6 @@ Binary .STL file suppport
 Milage will vary depending on the model and various settings in the program.
 At worst the model will flicker badly (when moving) and look incorrect. At best it is serviceable.
 
+*** update ***
+The code runs much faster in .Net5
+The form layout may get messed up a bit. 

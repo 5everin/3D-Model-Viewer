@@ -1,13 +1,13 @@
-﻿Imports System.ComponentModel
+﻿Public Class Form2
+  Private Sub Form2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    PictureBox1.SizeMode = PictureBoxSizeMode.StretchImage
+    PictureBox1.Location = New Point(0, 0)
 
-Public Class Form2
-    Private Sub Form2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        Me.TopMost = True
-        Me.BringToFront()
-        TextBox2.SelectionLength = 0
-    End Sub
+  End Sub
 
-    Private Sub Form2_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
-        Form1.Enabled = True
-    End Sub
+
+
+  Private Sub Form2_ResizeEnd(sender As Object, e As EventArgs) Handles MyBase.ResizeEnd
+    PictureBox1.Size = Me.Size
+  End Sub
 End Class

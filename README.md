@@ -15,7 +15,7 @@ Z buffer.
 
 Rotation, translation and scaling.
 
-A light
+A movable light source
 
 Vertex, wire-frame and flat shaded rendering.
 

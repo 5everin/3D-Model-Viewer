@@ -96,6 +96,7 @@ Partial Class Form1
     Me.Label23 = New System.Windows.Forms.Label()
     Me.Label20 = New System.Windows.Forms.Label()
     Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.ComboBox1 = New System.Windows.Forms.ComboBox()
         Me.Button13 = New System.Windows.Forms.Button()
         Me.Button12 = New System.Windows.Forms.Button()
         Me.Button4 = New System.Windows.Forms.Button()
@@ -123,6 +124,7 @@ Partial Class Form1
         Me.TrackBar7 = New System.Windows.Forms.TrackBar()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
+        Me.HideToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.CheckBox12 = New System.Windows.Forms.CheckBox()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.Label21 = New System.Windows.Forms.Label()
@@ -350,8 +352,9 @@ Partial Class Form1
         Me.ToolStripMenuItem1.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OpenAModelToolStripMenuItem, Me.ExportModelToolStripMenuItem, Me.ToolStripMenuItem3, Me.ToolStripSeparator1, Me.ToolStripMenuItem4, Me.ChangeBaseColourToolStripMenuItem, Me.ToolStripSeparator3, Me.ToolStripMenuItem6, Me.ToolStripMenuItem5, Me.ToolStripMenuItem2, Me.ToolStripMenuItem7, Me.ToolStripSeparator2, Me.SaveSettingsAsDefaultToolStripMenuItem, Me.ClearDefaultSettingsToolStripMenuItem})
         Me.ToolStripMenuItem1.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.ToolStripMenuItem1.Name = "ToolStripMenuItem1"
+        Me.ToolStripMenuItem1.Overflow = System.Windows.Forms.ToolStripItemOverflow.AsNeeded
         Me.ToolStripMenuItem1.ShowShortcutKeys = False
-        Me.ToolStripMenuItem1.Size = New System.Drawing.Size(52, 19)
+        Me.ToolStripMenuItem1.Size = New System.Drawing.Size(62, 19)
         Me.ToolStripMenuItem1.Text = "Options"
         Me.ToolStripMenuItem1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -623,9 +626,10 @@ Partial Class Form1
         Me.FlipToolStripMenuItem1.AutoSize = False
         Me.FlipToolStripMenuItem1.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.FlipToolStripMenuItem1.Name = "FlipToolStripMenuItem1"
-        Me.FlipToolStripMenuItem1.Size = New System.Drawing.Size(75, 19)
-        Me.FlipToolStripMenuItem1.Text = "Flip Panel"
-        Me.FlipToolStripMenuItem1.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.FlipToolStripMenuItem1.Overflow = System.Windows.Forms.ToolStripItemOverflow.AsNeeded
+        Me.FlipToolStripMenuItem1.Size = New System.Drawing.Size(35, 19)
+        Me.FlipToolStripMenuItem1.Text = "Flip"
+        Me.FlipToolStripMenuItem1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'Label13
         '
@@ -841,7 +845,7 @@ Partial Class Form1
         Me.CheckBox10.Location = New System.Drawing.Point(1, 529)
         Me.CheckBox10.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CheckBox10.Name = "CheckBox10"
-        Me.CheckBox10.Size = New System.Drawing.Size(102, 22)
+        Me.CheckBox10.Size = New System.Drawing.Size(97, 22)
         Me.CheckBox10.TabIndex = 57
         Me.CheckBox10.Text = "Light"
         Me.CheckBox10.TextAlign = System.Drawing.ContentAlignment.TopCenter
@@ -911,6 +915,7 @@ Partial Class Form1
         Me.Panel1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Panel1.AutoScroll = True
         Me.Panel1.BackColor = System.Drawing.SystemColors.ButtonShadow
+        Me.Panel1.Controls.Add(Me.ComboBox1)
         Me.Panel1.Controls.Add(Me.Button13)
         Me.Panel1.Controls.Add(Me.Button12)
         Me.Panel1.Controls.Add(Me.Button4)
@@ -984,6 +989,16 @@ Partial Class Form1
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(211, 1047)
         Me.Panel1.TabIndex = 2
+        '
+        'ComboBox1
+        '
+        Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBox1.FormattingEnabled = True
+        Me.ComboBox1.Items.AddRange(New Object() {"Shader 1", "Shader 2", "Shader 3", "Shader 4"})
+        Me.ComboBox1.Location = New System.Drawing.Point(101, 529)
+        Me.ComboBox1.Name = "ComboBox1"
+        Me.ComboBox1.Size = New System.Drawing.Size(75, 21)
+        Me.ComboBox1.TabIndex = 4
         '
         'Button13
         '
@@ -1307,16 +1322,25 @@ Partial Class Form1
         Me.MenuStrip1.BackColor = System.Drawing.SystemColors.ButtonShadow
         Me.MenuStrip1.Dock = System.Windows.Forms.DockStyle.None
         Me.MenuStrip1.GripMargin = New System.Windows.Forms.Padding(0)
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripMenuItem1, Me.FlipToolStripMenuItem1, Me.ExitToolStripMenuItem})
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripMenuItem1, Me.FlipToolStripMenuItem1, Me.HideToolStripMenuItem1, Me.ExitToolStripMenuItem})
         Me.MenuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 2)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.Padding = New System.Windows.Forms.Padding(2, 2, 0, 2)
         Me.MenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional
-        Me.MenuStrip1.Size = New System.Drawing.Size(182, 24)
+        Me.MenuStrip1.Size = New System.Drawing.Size(181, 24)
         Me.MenuStrip1.Stretch = False
         Me.MenuStrip1.TabIndex = 56
         Me.MenuStrip1.Text = "Menu"
+        '
+        'HideToolStripMenuItem1
+        '
+        Me.HideToolStripMenuItem1.AutoSize = False
+        Me.HideToolStripMenuItem1.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.HideToolStripMenuItem1.Name = "HideToolStripMenuItem1"
+        Me.HideToolStripMenuItem1.Size = New System.Drawing.Size(45, 19)
+        Me.HideToolStripMenuItem1.Text = "Hide"
+        Me.HideToolStripMenuItem1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'CheckBox12
         '
@@ -1489,4 +1513,6 @@ Partial Class Form1
     Friend WithEvents Button4 As Button
     Friend WithEvents Button12 As Button
     Friend WithEvents Button13 As Button
+    Friend WithEvents ComboBox1 As ComboBox
+    Friend WithEvents HideToolStripMenuItem1 As ToolStripMenuItem
 End Class

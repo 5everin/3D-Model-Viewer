@@ -9,7 +9,7 @@ It's also my first attempt at anything using 3d and was a learning process for m
 So much of this I would have approached differently with the benefit of hindsight.
 
 It is fast and an example of what you can achieve graphically if you are stubborn enough using only VB.Net.
-It also shows that pixel shading and use of texture maps would be feasible performance wise.
+It also shows that pixel shading and the use of texture maps would be feasible performance wise.
 
 
 Quick feature list:

@@ -5,7 +5,7 @@ Requires .net 4.6 or newer.
 May require the adding of a reference to System.Numerics
 
 This is not an example of great coding technique I'm afraid. (I'm just a hobbyist)
-It's also my first attempt at anything using 3d and everything from creating a line up to lighting and hidden line removal was a mixture of me having a stab at a solution or learning how to implement existing ways of approaching the problem. (I would have approached a fair bit of this differently with the benefit of hindsight)
+It's also my first attempt at anything using 3d and everything from creating a line up to lighting and hidden line removal was a mixture of me having a stab at a solution or learning how to implement existing ways of approaching the problem. (I would have approached some of this differently with the benefit of hindsight)
 
 It is however fast and an example of what you can achieve graphically if you are stubborn enough using only VB.Net.
 It also shows that pixel shading and the use of texture maps would be feasible performance wise.

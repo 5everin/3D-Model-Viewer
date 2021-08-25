@@ -22,9 +22,9 @@ Rotation, translation and scaling.
 
 Lighting: A movable light that can be changed between a point source or a directional source.
 
-Vertex, wire-frame and flat shaded rendering.
+Renders: Vertexs, wire-frames and flat shaded polygons.
 
-Transparency*
+Non light based shading.
 
 multi-threaded
 
@@ -32,9 +32,8 @@ Limited Alias WaveFront .OBJ file support (vertexs, point elements and 3 or 4 si
 
 Binary .STL file suppport
 
-
-
-*The program does not z-sort the polygons each frame so partial transparency will probably cause rendering artifacts. 
+Transparency:
+The program does not z-sort the polygons each frame so partial transparency will probably cause rendering artifacts. 
 Mileage will vary depending on the model and various settings in the program.
 At worst the model will flicker badly (when moving) and look incorrect. At best it works reasonably well.
 

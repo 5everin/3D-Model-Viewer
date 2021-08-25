@@ -42,5 +42,4 @@ Fixing this would require something along the lines of: implementing an A-buffer
 
 *** update ***
 Added a Point light.
-The code runs much faster in .Net5
-The form layout may get messed up a bit. 
+The code runs much faster in .Net5 and above. 

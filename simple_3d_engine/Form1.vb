@@ -424,8 +424,7 @@ Public Class Form1
                                  End If
 
                                  '  generate the face normal & back face cull if required
-                                 vec(3) = Vector3.Subtract(vec(2), vec(0))
-                                 Dim norml As Vector3 = Vector3.Cross(Vector3.Subtract(vec(1), vec(0)), vec(3))
+                                 Dim norml As Vector3 = Vector3.Cross(Vector3.Subtract(vec(1), vec(0)), Vector3.Subtract(vec(2), vec(0)))
                                  If norml <> Vector3.Zero Then norml = Vector3.Normalize(norml)
                                  Dim tmp As Vector3 = norml
                                  tmp.Z -= camera.Z
@@ -667,33 +666,25 @@ Public Class Form1
       gdot = (Obj_base_colour And greenMask) >> 8
       bdot = (Obj_base_colour And blueMask)
     End If
-    Dim diff As Single
+    Dim diff As Single = 1
     If CheckBox14.Checked Then 'point light
-      Dim ldist As Single = Vector3.DistanceSquared(Vc - screencenter, light)
-      diff = 1 - (ldist * 0.000001)
-      'ldist = diff
-      'Dim td As Single
-      'Dim LightDirection As Vector3 = Vector3.Add(light, Vc - screencenter)
-      'LightDirection = Vector3.Normalize(-LightDirection)
-      'td = Vector3.Dot(norm, LightDirection)
-      'diff = ldist - (td - diff)
-      'If diff < 0 Then
-      '  diff *= -1
-      '  diff = 1 - diff
-      'End If
-
-
+      Dim ldist As Single = Vector3.Distance(Vc - screencenter, light)
+      diff -= (ldist * 0.0005)
+      ldist = diff
+      Dim td As Single
+      Dim LightDirection As Vector3 = Vector3.Subtract(light, Vc - screencenter)
+      LightDirection = Vector3.Normalize(-LightDirection)
+      td = Vector3.Dot(norm, LightDirection)
+      diff = ldist - (td * diff)
     Else 'directional light
       Dim LightDirection As Vector3 = Vector3.Add(light, norm)
       LightDirection = Vector3.Normalize(LightDirection)
       diff = Vector3.Dot(norm, LightDirection)
     End If
-
-    If diff < diffmult Then
+    If diff > diffmult Then 'shiney
       diff *= (0.51 + diffmult)
       diff += diff * 0.158
     End If
-
     rdot = Floor(rdot - light_brightness + (diff * lightr))
     gdot = Floor(gdot - light_brightness + (diff * lightg))
     bdot = Floor(bdot - light_brightness + (diff * lightb))

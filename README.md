@@ -6,7 +6,7 @@ May require the adding of a reference to System.Numerics
 
 This is not an example of great coding technique I'm afraid. (I'm just a hobbyist)
 It's also my first attempt at anything using 3d and was a learning process for me.
-So much of this I would have approached differently with the benefit of hindsight.
+Much of this I would have approached differently with the benefit of hindsight.
 
 It is fast and an example of what you can achieve graphically if you are stubborn enough using only VB.Net.
 It also shows that pixel shading and the use of texture maps would be feasible performance wise.

@@ -4,8 +4,13 @@ A software renderer written in vb.net
 Requires .net 4.6 or newer. 
 May require the adding of a reference to System.Numerics
 
-This is not an example of great code or coding technique I'm afraid. (I'm just a hobbyist)
-It is an example of what you can achieve graphically if you are stubborn enough.
+This is not an example of great coding technique I'm afraid. (I'm just a hobbyist)
+It's also my first attempt at anything using 3d and was a learning process for me.
+So much of this I would have approached differently with the benefit of hindsight.
+
+It is fast and an example of what you can achieve graphically if you are stubborn enough using only VB.Net.
+It also shows that pixel shading and use of texture maps would be feasible performance wise.
+
 
 Quick feature list:
 
@@ -23,7 +28,7 @@ Transparency*
 
 multi-threaded
 
-Limited Alias WaveFront .obj file support ( 3 & 4 sided polygon data only)
+Limited Alias WaveFront .OBJ file support (vertexs, point elements and 3 or 4 sided polygon data only)
 
 Binary .STL file suppport
 

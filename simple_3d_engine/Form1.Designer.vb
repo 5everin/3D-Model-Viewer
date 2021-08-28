@@ -932,7 +932,7 @@ Partial Class Form1
         Me.TabControl1.Controls.Add(Me.TabPage4)
         Me.TabControl1.HotTrack = True
         Me.TabControl1.ItemSize = New System.Drawing.Size(62, 16)
-        Me.TabControl1.Location = New System.Drawing.Point(0, 146)
+        Me.TabControl1.Location = New System.Drawing.Point(2, 145)
         Me.TabControl1.Margin = New System.Windows.Forms.Padding(0)
         Me.TabControl1.Multiline = True
         Me.TabControl1.Name = "TabControl1"

@@ -344,10 +344,11 @@ Public Class Form1
 
   Public Sub Rotate_point(ByRef Vect As Vector3, Fpoint As Vector3, angles As Vector3)
     Dim Rotator As Quaternion = Quaternion.CreateFromYawPitchRoll(angles.Y, angles.X, angles.Z) 'rotation in radians
-    Vect -= Fpoint '---------cam focus is the point to rotate around in this case.
+    Vect -= Fpoint '--------- Vect will be rotated around Fpoint.
     Vect = Vector3.Transform(Vect, Rotator)
     Vect += Fpoint
   End Sub
+
   Private Sub Nu_rasterPoly(ByVal vrt() As Vector3, ByVal ply() As Poly)
     diffmult = TrackBar9.Value * 0.001
     If diffmult >= 1 Then diffmult = 0.999
@@ -372,28 +373,13 @@ Public Class Form1
                                  Next
 
 
-                                 ''generate the face normal & back face cull if required
-                                 'vec(3) = Vector3.Subtract(vec(2), vec(0))
-                                 'Dim norml As Vector3 = Vector3.Cross(Vector3.Subtract(vec(1), vec(0)), vec(3))
-                                 'If norml <> Vector3.Zero Then norml = Vector3.Normalize(norml)
-                                 'Dim tmp As Vector3 = norml
-                                 'tmp.Z -= camera.Z
-                                 'Dim Ang As Single = Vector3.Dot(tmp, norml)
-                                 'If CheckBox5.Checked Then
-                                 '  If Ang > 0 Then Exit Sub 'back face cull
-                                 'ElseIf Ang > 0 Then
-                                 '  If CheckBox14.Checked = False Then norml *= -1 ' flips normal so the triangle is always faceing the camera creating a "double sided" polygon
-                                 'End If
-                                 'Normals(f) = norml
-
-
                                  'perspective
                                  If CheckBox6.Checked Then
                                    For n As Int32 = 0 To 2 '   perspective transform for each vertex(3D > 2D mapping) 
                                      'Dim fac As Single = vec(n).Z / (camera.Z)
                                      'vec(n).X = vec(n).X * -(fac / 2)
                                      'vec(n).Y = vec(n).Y * -(fac / 2)
-                                     'vec(n) += modelcenter
+                                     'vec(n) += modelcenter '.... un-comment us...ps. Turn on Tumble & Perspective :)
                                      vec(n).X = camera.Z * (vec(n).X - screencenter.X)
                                      vec(n).X /= (camera.Z - vec(n).Z)
                                      vec(n).X += camera.X
@@ -534,13 +520,9 @@ Public Class Form1
     If DrawWire AndAlso Lit_lines = False Then
       colour = Obj_base_colour
     Else
-      ' If CheckBox14.Checked Then
       PLight(vec, Normals(indx), colour)
-      ' Else
-      ' Lighting(Normals(indx), colour) 'use the light
-      'nd If
     End If
-      If DrawWire = False AndAlso Lit_lines = False Then  '  non-lit polys without wireframe
+    If DrawWire = False AndAlso Lit_lines = False Then  '  non-lit polys without wireframe
       If (indx And 1) = 1 Then
         colour = &H7F808080
       Else
@@ -621,7 +603,7 @@ Public Class Form1
             rb1 += ((Bigarray(loc) And &HFF00FF) - rb1) * blendamount >> 8
             g1 += ((Bigarray(loc) And &HFF00) - g1) * blendamount >> 8
             Bigarray(loc) = (255 << 24) + ((rb1 And &HFF00FF) Or (g1 And &HFF00))
-            ' If zpos <= Zbuffer(loc) Then Zbuffer(loc) = zpos
+         '   If zpos <= Zbuffer(loc) Then Zbuffer(loc) = zpos
           Else
             If zpos < Zbuffer(loc) Then
               Bigarray(loc) = colour
@@ -737,19 +719,20 @@ Public Class Form1
       Next
     Next
   End Sub
-  Public Sub FuzzCircles(xpos As Int32, ypos As Int32, radius As Int32, tc As Int32)
-    If xpos + radius >= Swidth Or xpos - radius <= 0 Then Exit Sub
-    If ypos + radius >= Sheight Or ypos - radius <= 0 Then Exit Sub
-    For q As Int32 = radius To radius * 0.6 Step -2
-      For x As Int32 = -q To q
-        Dim height As Int32 = Int(Sqrt(q * q - x * x))
-        Dim loc As Int32
-        For y As Int32 = -height To height
-          loc = (x + xpos) + ((y + ypos) * Swidth)
-        Next
-      Next
-    Next q
-  End Sub
+  'Public Sub FuzzCircles(xpos As Int32, ypos As Int32, radius As Int32, tc As Int32)
+  '  If xpos + radius >= Swidth Or xpos - radius <= 0 Then Exit Sub
+  '  If ypos + radius >= Sheight Or ypos - radius <= 0 Then Exit Sub
+  '  For q As Int32 = radius To radius * 0.6 Step -2
+  '    For x As Int32 = -q To q
+  '      Dim height As Int32 = Int(Sqrt(q * q - x * x))
+  '      Dim loc As Int32
+  '      For y As Int32 = -height To height
+  '        loc = (x + xpos) + ((y + ypos) * Swidth)
+  '        Bigarray(loc) = tc
+  '      Next
+  '    Next
+  '  Next q
+  'End Sub
 
   Private Sub Makebmp() ' generate the image on screen
     If vertcount > 2 Then
@@ -758,8 +741,9 @@ Public Class Form1
       If mvelight Then
         light.X = -(screencenter.X - MousePosition.X)
         light.Y = -(screencenter.Y - MousePosition.Y)
+        '     FuzzCircles(light.X + MousePosition.X, light.Y + MousePosition.Y, 18, &H88F0D022) 'behind the model.
       End If
-      ' FuzzCircles(light.X + MousePosition.X, light.Y + MousePosition.Y, 8, &H88F0D022)
+
       If CheckBox3.Checked Then Drawgrid()
       If CheckBox7.Checked OrElse CheckBox1.Checked OrElse CheckBox2.Checked Then Nu_rasterPoly(Verts, Polys)
       If Bigarray.Length = size_array Then
@@ -774,6 +758,7 @@ Public Class Form1
                                               End Sub)
         End If
         If CheckBox12.Checked AndAlso pre_post Then AlphaBlend()
+        '   If mvelight Then FuzzCircles(light.X + MousePosition.X, light.Y + MousePosition.Y, 18, &H88F0D022) 'in front
         Dim bmpdata As Imaging.BitmapData = bmp.LockBits(rec, Drawing.Imaging.ImageLockMode.WriteOnly, bmp.PixelFormat)
         Dim ptr As IntPtr = bmpdata.Scan0
         System.Runtime.InteropServices.Marshal.Copy(Bigarray, 0, ptr, size_array)
@@ -790,6 +775,7 @@ Public Class Form1
       Time_stuff.Reset()
     End If
   End Sub
+
   Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
     If ToolStripMenuItem7.Checked Then
       Label33.Text = "Cpu:" & Cpu_Use.NextValue.ToString("n2") & "%" & " using" & proc_count & " logical cores"
@@ -797,6 +783,7 @@ Public Class Form1
       Label33.Text = vbNullString
     End If
   End Sub
+
   Private Sub Magnify(ByVal zoom As Single)
     Parallel.For(1, vertcount, Sub(f As Int32)
                                  Verts(f) = Vector3.Subtract(Verts(f), modelcenter)
@@ -806,6 +793,7 @@ Public Class Form1
     Mscale *= zoom
     Label8.Text = "Model Scale x " & Mscale.ToString("n2")
   End Sub
+
   Private Sub Center()
     For n As Int32 = 0 To 1
       Calc_centerpoint()
@@ -818,6 +806,7 @@ Public Class Form1
     SCnt()
     Makebmp()
   End Sub
+
   Private Sub Calc_centerpoint()
     modelcenter = Vector3.Zero
     For counts As Int32 = 1 To vertcount
@@ -964,6 +953,7 @@ Public Class Form1
     'Scale the model to a reasonable size based on screen height
     Firstscale()
   End Sub
+
   Public Function Normalise(Inmin As Double, Inmax As Double, Outmin As Double, Outmax As Double, Valu As Double) As Double
     Return Outmin + (Valu - Inmin) * (Outmax - Outmin) / (Inmax - Inmin)
     'Normalise ------- A=lowest value of input range, B=Highest value of input range
@@ -1423,6 +1413,7 @@ Public Class Form1
     Calc_centerpoint()
     Makebmp()
   End Sub
+
   Private Sub Tumbler_Click(sender As Object, e As EventArgs) Handles Tumbler.Click
     tumble = Not tumble
     If tumble Then Tumbler.Text = "Stop" Else Tumbler.Text = "Tumble"
@@ -1472,6 +1463,7 @@ Public Class Form1
     az = angz
     Makebmp()
   End Sub
+
   Private Sub Button22_Click(sender As Object, e As EventArgs) Handles SpinnerX.Click 'spin demo
     spinx = Not spinx
     If spinx Then SpinnerX.Text = "Stop" Else SpinnerX.Text = "Spin (P)"
@@ -1494,6 +1486,7 @@ Public Class Form1
     ax = angx
     Makebmp()
   End Sub
+
   Private Sub Button23_Click(sender As Object, e As EventArgs) Handles SpinnerY.Click 'spin demo
     spiny = Not spiny
     If spiny Then SpinnerY.Text = "Stop" Else SpinnerY.Text = "Spin (Y)"
@@ -1515,6 +1508,7 @@ Public Class Form1
     ay = angy
     Makebmp()
   End Sub
+
   Private Sub Button24_Click(sender As Object, e As EventArgs) Handles SpinnerZ.Click 'spin demo
     spinz = Not spinz
     If spinz Then SpinnerZ.Text = "Stop" Else SpinnerZ.Text = "Spin (R)"
@@ -1586,14 +1580,14 @@ Public Class Form1
       Panel1.Height = 132
       HideToolStripMenuItem1.Text = "Show"
     Else
-      HideToolStripMenuItem1.Text ="Hide"
+      HideToolStripMenuItem1.Text = "Hide"
       Panel1.ResumeLayout()
       Panel1.Height = 640 ' Me.Height
     End If
   End Sub
 
   Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button1.Click, Button5.Click, Button6.Click, Button7.Click, Button8.Click, Button9.Click, Button25.Click
-    ShowPos
+    ShowPos()
   End Sub
 
   Public Sub ShowPos()
